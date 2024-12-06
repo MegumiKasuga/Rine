@@ -8,6 +8,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import edu.carole.rine.ui.login.RineLoginActivity
 import kotlinx.coroutines.delay
+import java.util.Random
 
 class WelcomeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,7 +20,11 @@ class WelcomeActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        // val intent = Intent(this.baseContext, RineLoginActivity::class.java)
-        // startActivity(intent)
+        val thread = Thread { ->
+            Thread.sleep(3000)
+            val intent = Intent(this.baseContext, RineLoginActivity::class.java)
+            startActivity(intent)
+        }
+        thread.start()
     }
 }

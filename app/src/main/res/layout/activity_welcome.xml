@@ -23,7 +23,7 @@
         android:id="@+id/powered_by_tag"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="4dp"
         android:alpha="0.85"
         android:scaleX="1.5"
         android:scaleY="1.5"
@@ -32,4 +32,20 @@
         app:layout_constraintBottom_toTopOf="@+id/imageView2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/imageView4"
+        android:layout_width="399dp"
+        android:layout_height="258dp"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="287dp"
+        android:layout_marginEnd="6dp"
+        android:layout_marginBottom="277dp"
+        android:rotationX="0"
+        android:rotationY="0"
+        app:layout_constraintBottom_toTopOf="@+id/powered_by_tag"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/welcome_logo" />
 </androidx.constraintlayout.widget.ConstraintLayout>

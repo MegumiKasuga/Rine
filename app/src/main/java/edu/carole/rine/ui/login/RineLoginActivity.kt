@@ -43,8 +43,9 @@ class RineLoginActivity : AppCompatActivity() {
         val rememberMe = binding.rememberMeSwitch
         val autoLogin = binding.autoLoginSwitch
         val avatar = binding.loginAvatar
+        val welcomeText = binding.welcomeText
 
-        loginViewModel = ViewModelProvider(this, LoginViewModelFactory())
+        loginViewModel = ViewModelProvider(this, LoginViewModelFactory(DBHelper(this)))
             .get(LoginViewModel::class.java)
 
         loginViewModel.loginFormState.observe(this@RineLoginActivity, Observer {
@@ -70,11 +71,9 @@ class RineLoginActivity : AppCompatActivity() {
             }
             if (loginResult.success != null) {
                 updateUiWithUser(loginResult.success)
+                setResult(Activity.RESULT_OK)
+                finish()
             }
-            setResult(Activity.RESULT_OK)
-
-            //Complete and destroy login activity once successful
-            finish()
         })
 
         username.afterTextChanged {
@@ -84,8 +83,9 @@ class RineLoginActivity : AppCompatActivity() {
             )
         }
 
-        val loginFlag = loginViewModel.checkLoginOrRegister(this)
+        val loginFlag = loginViewModel.checkLoginOrRegister()
         avatar?.visibility = if (loginFlag) View.VISIBLE else View.INVISIBLE
+        welcomeText?.visibility = if (loginFlag) View.INVISIBLE else View.VISIBLE
         if (!loginFlag) {
             login.setText(R.string.action_register)
         }
@@ -117,7 +117,17 @@ class RineLoginActivity : AppCompatActivity() {
 
             login.setOnClickListener {
                 loading.visibility = View.VISIBLE
-                loginViewModel.login(username.text.toString(), password.text.toString())
+                if (!loginFlag) {
+                    loginViewModel.register(
+                        username.text.toString(),
+                        password.text.toString()
+                    )
+                } else {
+                    loginViewModel.login(
+                        username.text.toString(),
+                        password.text.toString()
+                    )
+                }
             }
         }
     }
