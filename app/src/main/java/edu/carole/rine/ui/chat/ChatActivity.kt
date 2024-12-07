@@ -2,11 +2,10 @@ package edu.carole.rine.ui.chat
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.children
 import edu.carole.rine.R
 import edu.carole.rine.data.model.LoggedInUser
+import edu.carole.rine.data.model.Msg
 import edu.carole.rine.databinding.ActivityChatBinding
-import edu.carole.rine.ui.login.afterTextChanged
 import java.util.UUID
 
 class ChatActivity : AppCompatActivity() {
@@ -16,7 +15,7 @@ class ChatActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if(savedInstanceState == null) return
+        // if(savedInstanceState == null) return
 
         binding = ActivityChatBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -27,7 +26,7 @@ class ChatActivity : AppCompatActivity() {
         val msgEditor = binding.msgEditor
         val sendMsgBtn = binding.sendMsgButton
         val chatTitle = binding.chatTitle
-        val editBtn = binding.returnButton
+        val returnBtn = binding.returnButton
         val detailBtn = binding.detailButton
         val listView = binding.chatList
 
@@ -40,7 +39,12 @@ class ChatActivity : AppCompatActivity() {
         msgList.add(Msg(user3, "1145141919810"))
 
         val adapter = MsgAdapter(this, R.layout.msg_item, msgList)
+        listView.divider = null
         listView.adapter = adapter
+
+        returnBtn.setOnClickListener {
+            finish()
+        }
 //        val chatWindow = this.binding.chatWindow
 
 //        chatWindow?.viewTreeObserver?.addOnGlobalLayoutListener {

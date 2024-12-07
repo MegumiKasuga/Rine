@@ -3,6 +3,7 @@ package edu.carole.rine.ui.login
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.content.SharedPreferences
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
@@ -44,6 +45,7 @@ class RineLoginActivity : AppCompatActivity() {
         val autoLogin = binding.autoLoginSwitch
         val avatar = binding.loginAvatar
         val welcomeText = binding.welcomeText
+        val sp = getPreferences(MODE_PRIVATE)
 
         loginViewModel = ViewModelProvider(this, LoginViewModelFactory(DBHelper(this)))
             .get(LoginViewModel::class.java)
@@ -75,6 +77,14 @@ class RineLoginActivity : AppCompatActivity() {
                 finish()
             }
         })
+
+        loginViewModel.autoLogin()
+
+        if (sp.contains("remember")) {
+            val str = sp.getString("remember", "")
+            if(str != null)
+                username.setText(str)
+        }
 
         username.afterTextChanged {
             loginViewModel.loginDataChanged(
@@ -109,7 +119,10 @@ class RineLoginActivity : AppCompatActivity() {
                     EditorInfo.IME_ACTION_DONE ->
                         loginViewModel.login(
                             username.text.toString(),
-                            password.text.toString()
+                            password.text.toString(),
+                            autoLogin != null && autoLogin.isChecked,
+                            rememberMe != null && rememberMe.isChecked,
+                            sp
                         )
                 }
                 false
@@ -120,12 +133,18 @@ class RineLoginActivity : AppCompatActivity() {
                 if (!loginFlag) {
                     loginViewModel.register(
                         username.text.toString(),
-                        password.text.toString()
+                        password.text.toString(),
+                        autoLogin != null && autoLogin.isChecked,
+                        rememberMe != null && rememberMe.isChecked,
+                        sp
                     )
                 } else {
                     loginViewModel.login(
                         username.text.toString(),
-                        password.text.toString()
+                        password.text.toString(),
+                        autoLogin != null && autoLogin.isChecked,
+                        rememberMe != null && rememberMe.isChecked,
+                        sp
                     )
                 }
             }

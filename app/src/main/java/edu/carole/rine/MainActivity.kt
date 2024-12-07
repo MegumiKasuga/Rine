@@ -1,8 +1,14 @@
 package edu.carole.rine
 
+import android.app.Fragment
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.util.AttributeSet
 import android.view.Menu
 import android.view.View
+import android.widget.AdapterView
+import android.widget.ListView
 import android.widget.TextView
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.navigation.NavigationView
@@ -13,7 +19,12 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.doOnAttach
+import edu.carole.rine.data.model.Chat
 import edu.carole.rine.databinding.ActivityMainBinding
+import edu.carole.rine.ui.chat.ChatActivity
+import edu.carole.rine.ui.chat.ChatAdapter
+import edu.carole.rine.ui.home.HomeFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -46,8 +57,6 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
-
-
     }
 
 //    override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -61,5 +70,9 @@ class MainActivity : AppCompatActivity() {
         val usernameText = binding.navigation.findViewById<TextView>(R.id.nav_username)
         usernameText?.text = intent.getStringExtra("user")
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+    }
+
+    override fun onCreateView(name: String, context: Context, attrs: AttributeSet): View? {
+        return super.onCreateView(name, context, attrs)
     }
 }

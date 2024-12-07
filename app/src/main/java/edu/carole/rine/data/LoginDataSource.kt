@@ -18,7 +18,7 @@ class LoginDataSource {
             if (db.couldUserLogin(username, password)) {
                 val id = db.unsafeGetId(username)
                 if (id == null) {
-                    db.deleteUser(username)
+                    db.removeUser(username)
                     return Result.Error(Exception("Unexpected Error in login"))
                 }
                 return Result.Success(LoggedInUser(id, username))
@@ -30,12 +30,12 @@ class LoginDataSource {
         }
     }
 
-    fun register(context: Context, username: String, password: String): Result<LoggedInUser> {
+    fun register(context: Context, username: String, password: String, autoLogin: Boolean): Result<LoggedInUser> {
         val db = DBHelper(context)
         if (db.userAlreadyExists(username))
             return Result.Error(Exception("User Already Exists!"))
         val id = UUID.randomUUID()
-        db.register(username, password, id)
+        db.register(username, password, id, autoLogin)
         return Result.Success(LoggedInUser(id, username))
     }
 

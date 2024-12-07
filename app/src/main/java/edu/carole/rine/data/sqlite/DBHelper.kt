@@ -1,11 +1,14 @@
 package edu.carole.rine.data.sqlite
 
+import android.R
 import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
+import edu.carole.rine.data.model.Chat
+import edu.carole.rine.data.model.LoggedInUser
 import edu.carole.rine.data.zero_tier.ZeroTierNetwork
 import java.sql.SQLException
 import java.util.UUID
@@ -25,16 +28,24 @@ class DBHelper(val context: Context):
             "storage TEXT, " +
             "port SHORT)"
 
+    val createChatDb = "CREATE TABLE rine_chat(" +
+            "id LONG PRIMARY KEY, " +
+            "name TEXT, " +
+            "server LONG, " +
+            "is_group BOOLEAN)"
+
     // val INVALID_UUID = UUID.fromString("0-0-0-0")
 
     val userTable = "rine_user"
     val networkTable = "rine_network"
+    val chatTable = "rine_chat"
 
     override fun onCreate(db: SQLiteDatabase?) {
         // TODO("Not yet implemented")
         try {
             db?.execSQL(createUserDb)
             db?.execSQL(createNetworkDb)
+            db?.execSQL(createChatDb)
         } catch (exception: SQLException) {
             Log.e("db", exception.toString())
         }
@@ -97,8 +108,8 @@ class DBHelper(val context: Context):
         return result
     }
 
-    fun deleteUser(name: String) {
-        this.getDataBase().execSQL("DELETE FROM $userTable WHERE name=$name")
+    fun removeUser(name: String) {
+        getDataBase().delete(userTable, "name=?", arrayOf(name))
     }
 
     fun updatePass(name: String, oldPass: String, newPass: String): Boolean {
@@ -110,12 +121,23 @@ class DBHelper(val context: Context):
         return true
     }
 
-    fun register(name: String, pass: String, id: UUID): Boolean {
+    fun updateAutoLogin(name: String) {
+        val users = getAllCachedUsers()
+        for (user in users) {
+            val content = ContentValues().apply {
+                put("auto_login", if (user == name) 1 else 0)
+            }
+            getDataBase().update(userTable, content, "name=?", arrayOf(user))
+        }
+    }
+
+    fun register(name: String, pass: String, id: UUID, autoLogin: Boolean): Boolean {
         if (userAlreadyExists(name)) return false
         val content = ContentValues().apply {
             put("id", id.toString())
             put("name", name)
             put("pass", pass)
+            put("auto_login", if (autoLogin) 1 else 0)
         }
         this.getDataBase().insert(userTable, null, content)
         return true
@@ -185,15 +207,72 @@ class DBHelper(val context: Context):
         return true
     }
 
-//    fun removeNetwork(network: ZeroTierNetwork) {
-//        val id = network.networkId
-//        val port = network.port
-//        getDataBase().execSQL("DELETE FROM $networkTable WHERE id=$id AND port=$port")
-//    }
     fun removeNetwork(network: ZeroTierNetwork) {
         val id = network.networkId
         val port = network.port
         getDataBase().delete(networkTable, "id=? AND port=?", arrayOf(id.toString(), port.toString()))
+    }
+
+    fun getAllChats(): List<Chat> {
+        val db = getDataBase()
+        val cursor = db.query(chatTable, arrayOf("id", "name", "server"), null, null, null, null, null, null)
+        val result = ArrayList<Chat>()
+        if (cursor.moveToFirst()) {
+            do {
+                val idColumn = cursor.getColumnIndex("id")
+                val nameColumn = cursor.getColumnIndex("name")
+                val serverColumn = cursor.getColumnIndex("server")
+                val isGroupColumn = cursor.getColumnIndex("is_group")
+                if (idColumn < 0 || nameColumn < 0 || serverColumn < 0 || isGroupColumn < 0)
+                    return result
+                result.add(
+                    Chat(cursor.getLong(idColumn),
+                        cursor.getString(nameColumn),
+                        cursor.getLong(serverColumn),
+                        cursor.getInt(isGroupColumn) == 1
+                    ))
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return result
+    }
+
+    fun addChat(chat: Chat): Boolean {
+        val chats = getAllChats()
+        for (c in chats) {
+            if (c.id == chat.id) return false
+        }
+        val content = ContentValues().apply {
+            put("id", chat.id)
+            put("name", chat.name)
+            put("server", chat.server)
+            put("is_group", if (chat.isGroup) 1 else 0)
+        }
+        getDataBase().insert(chatTable, null, content)
+        return true
+    }
+
+    fun removeChat(chat: Chat) {
+        val id = chat.id
+        getDataBase().delete(chatTable, "id=?", arrayOf(id.toString()))
+    }
+
+    fun getAutoLogin(): LoggedInUser? {
+        val db = getDataBase()
+        val cursor = db.query(userTable, arrayOf("id", "name", "auto_login"), null, null, null, null, null)
+        if (cursor.moveToFirst()) {
+            do {
+                val autoLoginColumn = cursor.getColumnIndex("auto_login")
+                val idColumn = cursor.getColumnIndex("id")
+                val nameColumn = cursor.getColumnIndex("name")
+                if (autoLoginColumn < 0 || idColumn < 0 || nameColumn < 0) return null
+                if (cursor.getInt(autoLoginColumn) != 0) {
+                    return LoggedInUser(UUID.fromString(cursor.getString(idColumn)), cursor.getString(nameColumn))
+                }
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return null
     }
 }
 

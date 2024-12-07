@@ -1,6 +1,7 @@
 package edu.carole.rine.ui.login
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -27,14 +28,19 @@ class LoginViewModel : ViewModel {
         this.db = db
     }
 
-    fun login(username: String, password: String) {
+    fun login(username: String, password: String, autoLogin: Boolean, rememberMe: Boolean, sp: SharedPreferences) {
         // can be launched in a separate asynchronous job
+        if (!rememberMe) {
+            val editor = sp.edit()
+            editor.remove("remember")
+            editor.apply()
+        }
         val result = try {
             // TODO: handle loggedInUser authentication
             if (db.couldUserLogin(username, password)) {
                 val id = db.unsafeGetId(username)
                 if (id == null) {
-                    db.deleteUser(username)
+                    db.removeUser(username)
                     Result.Error(Exception("Unexpected Error in login"))
                 } else
                     Result.Success(LoggedInUser(id, username))
@@ -48,22 +54,55 @@ class LoginViewModel : ViewModel {
         if (result is Result.Success) {
             _loginResult.value =
                 LoginResult(success = LoggedInUserView(displayName = result.data.displayName))
+            val success = _loginResult.value?.success
+            if (autoLogin && success != null)
+                updateAutoLogin(success.displayName)
+            else if (rememberMe) {
+                val editor = sp.edit()
+                editor.putString("remember", success?.displayName)
+                editor.apply()
+            }
         } else {
             _loginResult.value = LoginResult(error = R.string.login_failed)
         }
     }
 
-    fun register(username: String, password: String) {
+    fun autoLogin() {
+        val autoLoginUser = db.getAutoLogin()
+        if (autoLoginUser == null) return
+        val result = Result.Success(autoLoginUser)
+        _loginResult.value =
+            LoginResult(success = LoggedInUserView(displayName = result.data.displayName))
+    }
+
+    fun updateAutoLogin(userName: String) {
+        db.updateAutoLogin(userName)
+    }
+
+    fun register(username: String, password: String, autoLogin: Boolean, rememberMe: Boolean, sp: SharedPreferences) {
+        if (!rememberMe) {
+            val editor = sp.edit()
+            editor.remove("remember")
+            editor.apply()
+        }
         val result = if (db.userAlreadyExists(username))
             Result.Error(Exception("User Already Exists!"))
         else {
             val id = UUID.randomUUID()
-            db.register(username, password, id)
+            db.register(username, password, id, autoLogin)
             Result.Success(LoggedInUser(id, username))
         }
         if (result is Result.Success) {
             _loginResult.value =
                 LoginResult(success = LoggedInUserView(displayName = result.data.displayName))
+            val success = _loginResult.value?.success
+            if (autoLogin && success != null)
+                updateAutoLogin(success.displayName)
+            else if (rememberMe) {
+                val editor = sp.edit()
+                editor.putString("remember", success?.displayName)
+                editor.apply()
+            }
         } else {
             _loginResult.value = LoginResult(error = R.string.login_failed)
         }
