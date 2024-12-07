@@ -191,3 +191,4 @@ class DBHelper(val context: Context):
         getDataBase().execSQL("DELETE FROM $networkTable WHERE id=$id AND port=$port")
     }
 }
+

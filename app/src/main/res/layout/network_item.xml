@@ -2,28 +2,37 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="60dp"
     android:layout_margin="10dp">
 
-    <TextView
-        android:id="@+id/nick"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="nickname"
-        android:textColor="@color/black"
-        android:textSize="22dp"
-        android:textStyle="bold"
-        />
+        android:layout_centerVertical="true"
+        android:orientation="vertical"
+        android:layout_alignParentStart="true"
+        android:gravity="center_vertical"
+        android:layout_marginLeft="10dp">
 
-    <TextView
-        android:id="@+id/port"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:text="port"
-        android:textColor="@color/grey"
-        android:textSize="16dp"
-        />
+        <TextView
+            android:id="@+id/nick"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="nickname"
+            android:textSize="22dp"
+            android:textStyle="bold"
+            />
+
+        <TextView
+            android:id="@+id/port"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="port"
+            android:textColor="@color/grey"
+            android:textSize="16dp"
+            />
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/disconnect"
@@ -31,9 +40,22 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_alignParentEnd="true"
-        android:text="disconect"
+        android:text="disconnect"
         android:textColor="@color/disconnect"
         android:textSize="22dp"
         android:textStyle="bold"
+        android:layout_marginRight="10dp"
         />
+
+    <Button
+        android:id="@+id/delete_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Delete"
+        android:visibility="gone"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="20dp"
+        />
+
 </RelativeLayout>

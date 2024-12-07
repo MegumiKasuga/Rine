@@ -15,6 +15,9 @@ class NetworkAdapter(
     private val networks: List<ZeroTierNetwork>
 ) : BaseAdapter() {
 
+    private var currentVisibleDeleteButton: Button? = null
+    private var currentVisibleDisconnectTextView: TextView? = null
+
     override fun getCount(): Int {
         return networks.size
     }
@@ -37,6 +40,7 @@ class NetworkAdapter(
             holder.nickTextView = view.findViewById(R.id.nick)
             holder.portTextView = view.findViewById(R.id.port)
             holder.disconnectTextView = view.findViewById(R.id.disconnect)
+            holder.deleteButton = view.findViewById(R.id.delete_button)
             view.tag = holder
         } else {
             view = convertView
@@ -46,12 +50,28 @@ class NetworkAdapter(
         val network = networks[position]
         holder.nickTextView.text = network.nick
         holder.portTextView.text = network.port.toString()
-        // 设置 disconnectTextView 的点击事件
-        holder.disconnectTextView.setOnClickListener {
-            // 调用 addRandomNetwork 方法添加随机数据
+
+        view.setOnClickListener {
+            if (holder.deleteButton.visibility == View.VISIBLE) {
+                holder.deleteButton.visibility = View.GONE
+                holder.disconnectTextView.visibility = View.VISIBLE
+                currentVisibleDeleteButton = null
+                currentVisibleDisconnectTextView = null
+            } else {
+                currentVisibleDeleteButton?.visibility = View.GONE
+                currentVisibleDisconnectTextView?.visibility = View.VISIBLE
+                holder.deleteButton.visibility = View.VISIBLE
+                holder.disconnectTextView.visibility = View.GONE
+                currentVisibleDeleteButton = holder.deleteButton
+                currentVisibleDisconnectTextView = holder.disconnectTextView
+            }
+        }
+
+
+        holder.deleteButton.setOnClickListener {
             val networkManager = NetworkManager(DBHelper(context))
-            networkManager.addRandomNetwork()
-            notifyDataSetChanged() // 刷新列表
+            networkManager.removeNetwork(network)
+            notifyDataSetChanged()
         }
 
         return view
@@ -61,5 +81,6 @@ class NetworkAdapter(
         lateinit var nickTextView: TextView
         lateinit var portTextView: TextView
         lateinit var disconnectTextView: TextView
+        lateinit var deleteButton: Button
     }
 }
