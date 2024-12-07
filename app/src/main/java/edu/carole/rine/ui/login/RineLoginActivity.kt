@@ -142,6 +142,7 @@ class RineLoginActivity : AppCompatActivity() {
             Toast.LENGTH_LONG
         ).show()
         val intent = Intent(this, MainActivity::class.java)
+        intent.putExtra("user", model.displayName)
         startActivity(intent)
     }
 

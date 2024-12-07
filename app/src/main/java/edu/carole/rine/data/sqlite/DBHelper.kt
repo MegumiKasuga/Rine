@@ -6,6 +6,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
+import edu.carole.rine.data.zero_tier.ZeroTierNetwork
 import java.sql.SQLException
 import java.util.UUID
 
@@ -18,18 +19,22 @@ class DBHelper(val context: Context):
             "pass TEXT, " +
             "auto_login BOOLEAN)"
 
-    val getUser = "SELECT pass " +
-            "FROM rine_user " +
-            "WHERE name="
+    val createNetworkDb = "CREATE TABLE rine_network(" +
+            "id LONG PRIMARY KEY, " +
+            "nick TEXT, " +
+            "storage TEXT, " +
+            "port SHORT)"
 
     // val INVALID_UUID = UUID.fromString("0-0-0-0")
 
     val userTable = "rine_user"
+    val networkTable = "rine_network"
 
     override fun onCreate(db: SQLiteDatabase?) {
         // TODO("Not yet implemented")
         try {
             db?.execSQL(createUserDb)
+            db?.execSQL(createNetworkDb)
         } catch (exception: SQLException) {
             Log.e("db", exception.toString())
         }
@@ -93,7 +98,7 @@ class DBHelper(val context: Context):
     }
 
     fun deleteUser(name: String) {
-        this.getDataBase().execSQL("DELETE FROM rine_user WHERE name=$name")
+        this.getDataBase().execSQL("DELETE FROM $userTable WHERE name=$name")
     }
 
     fun updatePass(name: String, oldPass: String, newPass: String): Boolean {
@@ -130,5 +135,59 @@ class DBHelper(val context: Context):
         }
         cursor.close()
         return null
+    }
+
+    fun getAllNetworks(): List<ZeroTierNetwork> {
+        val db = getDataBase()
+        val cursor = db.query(networkTable, arrayOf("id", "nick", "storage", "port"), null, null, null, null, null)
+        val result = ArrayList<ZeroTierNetwork>()
+        if (cursor.moveToFirst()) {
+            do {
+                val idColumn = cursor.getColumnIndex("id")
+                val storageColumn = cursor.getColumnIndex("storage")
+                val portColumn = cursor.getColumnIndex("port")
+                val nickColumn = cursor.getColumnIndex("nick")
+                if (idColumn < 0 || storageColumn < 0 || portColumn < 0) return result
+                result.add(ZeroTierNetwork(cursor.getLong(idColumn),
+                    cursor.getString(nickColumn),
+                    cursor.getString(storageColumn),
+                    cursor.getShort(portColumn)
+                ))
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return result
+    }
+
+    fun addNetwork(network: ZeroTierNetwork): Boolean {
+        if (getAllNetworks().contains(network)) return false
+        val content = ContentValues().apply {
+            put("id", network.networkId)
+            put("nick", network.nick)
+            put("storage", network.storagePath)
+            put("port", network.port)
+        }
+        getDataBase().insert(networkTable, null, content)
+        return true
+    }
+
+    fun updateNetwork(network: ZeroTierNetwork, newNetwork: ZeroTierNetwork): Boolean {
+        val networks = getAllNetworks()
+        if (network !in networks) return false
+        val content = ContentValues().apply {
+            put("id", newNetwork.networkId)
+            put("nick", newNetwork.nick)
+            put("storage", newNetwork.storagePath)
+            put("port", newNetwork.port)
+        }
+        getDataBase().update(networkTable, content, "id=? AND port=?",
+            arrayOf(network.networkId.toString(), network.port.toString()))
+        return true
+    }
+
+    fun removeNetwork(network: ZeroTierNetwork) {
+        val id = network.networkId
+        val port = network.port
+        getDataBase().execSQL("DELETE FROM $networkTable WHERE id=$id AND port=$port")
     }
 }
