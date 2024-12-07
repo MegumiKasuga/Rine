@@ -53,7 +53,7 @@ dependencies {
     implementation(libs.androidx.annotation)
     implementation(libs.androidx.activity)
     //noinspection GradlePath
-    implementation(files("C:/Users/13168/AndroidStudioProjects/Rine/app/libs/libzt.aar"))
+    implementation(files("/libs/libzt.aar"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
