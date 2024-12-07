@@ -8,8 +8,9 @@
     <string name="action_settings">Settings</string>
 
     <string name="menu_home">Home</string>
-    <string name="menu_gallery">Gallery</string>
-    <string name="menu_slideshow">Slideshow</string>
+    <string name="menu_gallery">Network</string>
+    <string name="menu_slideshow">Settings</string>
+    <string name="menu_quit">Quit</string>
     <string name="title_activity_rine_login">RineLoginActivity</string>
     <string name="prompt_email">Username</string>
     <string name="prompt_password">Password</string>
@@ -24,4 +25,16 @@
     <string name="login_failed">"Login failed"</string>
 
     <string name="power_by">Powered By</string>
+    <string name="title_activity_fullscreen">FullscreenActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+
+    <string name="title_activity_chat">ChatActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="empty_input_content">Chat</string>
+    <string name="dummy_chat">Dummy Chat</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
