@@ -3,6 +3,7 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Android Studio</string>
+    <string name="nav_motto">Say something about you</string>
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
@@ -14,7 +15,7 @@
     <string name="title_activity_rine_login">RineLoginActivity</string>
     <string name="prompt_email">Username</string>
     <string name="prompt_password">Password</string>
-    <string name="action_sign_in">Sing in</string>
+    <string name="action_sign_in">Sign in</string>
     <string name="action_register">Register</string>
     <string name="button_remember_me">Remember Me</string>
     <string name="button_auto_login">Auto Login</string>

@@ -24,6 +24,7 @@ class WelcomeActivity : AppCompatActivity() {
             Thread.sleep(3000)
             val intent = Intent(this.baseContext, RineLoginActivity::class.java)
             startActivity(intent)
+            finish()
         }
         thread.start()
     }
