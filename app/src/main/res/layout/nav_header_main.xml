@@ -25,7 +25,7 @@
             android:contentDescription="@string/nav_header_desc"
             android:elevation="4dp"
             android:padding="1dp"
-            android:src="@mipmap/ic_launcher"
+            android:src="@drawable/default_avatar"
             android:translationY="30dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
