@@ -11,7 +11,7 @@ class NetworkManager(val db: DBHelper) {
     }
 
 //    fun addNetwork(networkId: Long, nick: String, storagePath: String, port: Short) {
-//        // ToDO: add real network
+        // ToDO: add real network
 //        val network = ZeroTierNetwork(networkId, nick, storagePath, port)
 //        db.addNetwork(network)
 //    }
@@ -21,6 +21,7 @@ class NetworkManager(val db: DBHelper) {
     }
 
 private fun deleteDirectory(dir: File): Boolean {
+    // del function
     if (dir.isDirectory) {
         val children = dir.listFiles()
         if (children != null) {
