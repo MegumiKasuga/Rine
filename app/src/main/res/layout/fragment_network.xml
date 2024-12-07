@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/background"
+
     tools:context=".ui.gallery.GalleryFragment">
 
     <Button
@@ -21,7 +23,10 @@
         android:id="@+id/network_list"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:dividerHeight="10dp"
+        android:dividerHeight="15dp"
+        android:layout_margin="10dp"
+        android:alpha="1"
+        android:divider="@android:color/transparent"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
