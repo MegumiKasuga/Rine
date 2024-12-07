@@ -12,7 +12,7 @@ import edu.carole.rine.data.zero_tier.ZeroTierNetwork
 
 class NetworkAdapter(
     private val context: Context,
-    private val networks: List<ZeroTierNetwork>
+    private var networks: List<ZeroTierNetwork>
 ) : BaseAdapter() {
 
     private var currentVisibleDeleteButton: Button? = null
@@ -67,16 +67,19 @@ class NetworkAdapter(
             }
         }
 
-
+        // 设置 deleteButton 的点击事件
         holder.deleteButton.setOnClickListener {
             val networkManager = NetworkManager(DBHelper(context))
             networkManager.removeNetwork(network)
-            notifyDataSetChanged()
+            updateNetworks(networkManager.getNetworks())
         }
 
         return view
     }
-
+    fun updateNetworks(newNetworks: List<ZeroTierNetwork>) {
+        this.networks = newNetworks
+        notifyDataSetChanged()
+    }
     private class ViewHolder {
         lateinit var nickTextView: TextView
         lateinit var portTextView: TextView

@@ -185,10 +185,15 @@ class DBHelper(val context: Context):
         return true
     }
 
+//    fun removeNetwork(network: ZeroTierNetwork) {
+//        val id = network.networkId
+//        val port = network.port
+//        getDataBase().execSQL("DELETE FROM $networkTable WHERE id=$id AND port=$port")
+//    }
     fun removeNetwork(network: ZeroTierNetwork) {
         val id = network.networkId
         val port = network.port
-        getDataBase().execSQL("DELETE FROM $networkTable WHERE id=$id AND port=$port")
+        getDataBase().delete(networkTable, "id=? AND port=?", arrayOf(id.toString(), port.toString()))
     }
 }
 
