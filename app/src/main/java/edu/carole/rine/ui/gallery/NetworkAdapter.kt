@@ -76,10 +76,12 @@ class NetworkAdapter(
 
         return view
     }
+
     fun updateNetworks(newNetworks: List<ZeroTierNetwork>) {
         this.networks = newNetworks
         notifyDataSetChanged()
     }
+
     private class ViewHolder {
         lateinit var nickTextView: TextView
         lateinit var portTextView: TextView

@@ -11,21 +11,20 @@
         android:id="@+id/add_network_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="add network"
         android:layout_margin="30dp"
         android:background="@drawable/rounded_button"
+        android:text="add network"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ListView
         android:id="@+id/network_list"
-        android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:dividerHeight="15dp"
+        android:layout_height="match_parent"
         android:layout_margin="10dp"
         android:alpha="1"
         android:divider="@android:color/transparent"
-        />
+        android:dividerHeight="15dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

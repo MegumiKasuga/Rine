@@ -10,11 +10,11 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:orientation="vertical"
         android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="20dp"
         android:gravity="center_vertical"
-        android:layout_marginLeft="20dp">
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/nick"
@@ -22,8 +22,7 @@
             android:layout_height="wrap_content"
             android:text="nickname"
             android:textSize="22dp"
-            android:textStyle="bold"
-            />
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/port"
@@ -31,8 +30,7 @@
             android:layout_height="wrap_content"
             android:text="port"
             android:textColor="@color/grey"
-            android:textSize="16dp"
-            />
+            android:textSize="16dp" />
 
     </LinearLayout>
 
@@ -40,24 +38,22 @@
         android:id="@+id/disconnect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
         android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="20dp"
         android:text="disconnected"
         android:textColor="@color/disconnect"
         android:textSize="22dp"
-        android:textStyle="bold"
-        android:layout_marginRight="20dp"
-        />
+        android:textStyle="bold" />
 
     <Button
         android:id="@+id/delete_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Delete"
-        android:visibility="gone"
-        android:layout_centerVertical="true"
         android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
         android:layout_marginRight="20dp"
-        />
+        android:text="Delete"
+        android:visibility="gone" />
 
 </RelativeLayout>

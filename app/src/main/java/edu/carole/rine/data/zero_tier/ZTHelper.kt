@@ -17,8 +17,10 @@ class ZTHelper {
     private val storagePath: String
     private var serverAddress: InetAddress
 
-    constructor(networkId: Long, storagePath: String, port: Short,
-                serverAddress: InetAddress, serverPort: Short, delay: Int) {
+    constructor(
+        networkId: Long, storagePath: String, port: Short,
+        serverAddress: InetAddress, serverPort: Short, delay: Int
+    ) {
         valid = false
         this.networkId = networkId
         this.storagePath = storagePath

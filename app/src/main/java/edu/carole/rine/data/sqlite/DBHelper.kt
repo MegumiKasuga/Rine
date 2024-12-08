@@ -13,7 +13,7 @@ import edu.carole.rine.data.zero_tier.ZeroTierNetwork
 import java.sql.SQLException
 import java.util.UUID
 
-class DBHelper(val context: Context):
+class DBHelper(val context: Context) :
     SQLiteOpenHelper(context, "rine.db", null, 1) {
 
     val createUserDb = "CREATE TABLE rine_user(" +
@@ -64,7 +64,8 @@ class DBHelper(val context: Context):
     }
 
     fun couldUserLogin(name: String, pass: String): Boolean {
-        val cursor = getDataBase().query(userTable, arrayOf("name", "pass"), null, null, null, null, null)
+        val cursor =
+            getDataBase().query(userTable, arrayOf("name", "pass"), null, null, null, null, null)
         if (cursor.moveToFirst()) {
             do {
                 val nameColumn = cursor.getColumnIndex("name")
@@ -81,7 +82,8 @@ class DBHelper(val context: Context):
     }
 
     fun userAlreadyExists(name: String): Boolean {
-        val cursor = getDataBase().query(userTable, arrayOf("name"), null, null, null, null, null, null)
+        val cursor =
+            getDataBase().query(userTable, arrayOf("name"), null, null, null, null, null, null)
         if (cursor.moveToFirst()) {
             do {
                 val nameColumn = cursor.getColumnIndex("name")
@@ -95,7 +97,8 @@ class DBHelper(val context: Context):
     }
 
     fun getAllCachedUsers(): List<String> {
-        val cursor = getDataBase().query(userTable, arrayOf("name"), null, null, null, null, null, null)
+        val cursor =
+            getDataBase().query(userTable, arrayOf("name"), null, null, null, null, null, null)
         val result = ArrayList<String>()
         if (cursor.moveToFirst()) {
             do {
@@ -161,7 +164,15 @@ class DBHelper(val context: Context):
 
     fun getAllNetworks(): List<ZeroTierNetwork> {
         val db = getDataBase()
-        val cursor = db.query(networkTable, arrayOf("id", "nick", "storage", "port"), null, null, null, null, null)
+        val cursor = db.query(
+            networkTable,
+            arrayOf("id", "nick", "storage", "port"),
+            null,
+            null,
+            null,
+            null,
+            null
+        )
         val result = ArrayList<ZeroTierNetwork>()
         if (cursor.moveToFirst()) {
             do {
@@ -170,11 +181,14 @@ class DBHelper(val context: Context):
                 val portColumn = cursor.getColumnIndex("port")
                 val nickColumn = cursor.getColumnIndex("nick")
                 if (idColumn < 0 || storageColumn < 0 || portColumn < 0) return result
-                result.add(ZeroTierNetwork(cursor.getLong(idColumn),
-                    cursor.getString(nickColumn),
-                    cursor.getString(storageColumn),
-                    cursor.getShort(portColumn)
-                ))
+                result.add(
+                    ZeroTierNetwork(
+                        cursor.getLong(idColumn),
+                        cursor.getString(nickColumn),
+                        cursor.getString(storageColumn),
+                        cursor.getShort(portColumn)
+                    )
+                )
             } while (cursor.moveToNext())
         }
         cursor.close()
@@ -202,20 +216,27 @@ class DBHelper(val context: Context):
             put("storage", newNetwork.storagePath)
             put("port", newNetwork.port)
         }
-        getDataBase().update(networkTable, content, "id=? AND port=?",
-            arrayOf(network.networkId.toString(), network.port.toString()))
+        getDataBase().update(
+            networkTable, content, "id=? AND port=?",
+            arrayOf(network.networkId.toString(), network.port.toString())
+        )
         return true
     }
 
     fun removeNetwork(network: ZeroTierNetwork) {
         val id = network.networkId
         val port = network.port
-        getDataBase().delete(networkTable, "id=? AND port=?", arrayOf(id.toString(), port.toString()))
+        getDataBase().delete(
+            networkTable,
+            "id=? AND port=?",
+            arrayOf(id.toString(), port.toString())
+        )
     }
 
     fun getAllChats(): List<Chat> {
         val db = getDataBase()
-        val cursor = db.query(chatTable, arrayOf("id", "name", "server"), null, null, null, null, null, null)
+        val cursor =
+            db.query(chatTable, arrayOf("id", "name", "server"), null, null, null, null, null, null)
         val result = ArrayList<Chat>()
         if (cursor.moveToFirst()) {
             do {
@@ -226,11 +247,13 @@ class DBHelper(val context: Context):
                 if (idColumn < 0 || nameColumn < 0 || serverColumn < 0 || isGroupColumn < 0)
                     return result
                 result.add(
-                    Chat(cursor.getLong(idColumn),
+                    Chat(
+                        cursor.getLong(idColumn),
                         cursor.getString(nameColumn),
                         cursor.getLong(serverColumn),
                         cursor.getInt(isGroupColumn) == 1
-                    ))
+                    )
+                )
             } while (cursor.moveToNext())
         }
         cursor.close()
@@ -259,7 +282,8 @@ class DBHelper(val context: Context):
 
     fun getAutoLogin(): LoggedInUser? {
         val db = getDataBase()
-        val cursor = db.query(userTable, arrayOf("id", "name", "auto_login"), null, null, null, null, null)
+        val cursor =
+            db.query(userTable, arrayOf("id", "name", "auto_login"), null, null, null, null, null)
         if (cursor.moveToFirst()) {
             do {
                 val autoLoginColumn = cursor.getColumnIndex("auto_login")
@@ -267,7 +291,10 @@ class DBHelper(val context: Context):
                 val nameColumn = cursor.getColumnIndex("name")
                 if (autoLoginColumn < 0 || idColumn < 0 || nameColumn < 0) return null
                 if (cursor.getInt(autoLoginColumn) != 0) {
-                    return LoggedInUser(UUID.fromString(cursor.getString(idColumn)), cursor.getString(nameColumn))
+                    return LoggedInUser(
+                        UUID.fromString(cursor.getString(idColumn)),
+                        cursor.getString(nameColumn)
+                    )
                 }
             } while (cursor.moveToNext())
         }
