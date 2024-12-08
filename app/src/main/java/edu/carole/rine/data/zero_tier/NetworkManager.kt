@@ -18,6 +18,7 @@ class NetworkManager(val db: DBHelper) {
     }
 
     fun addRandomNetwork() {
+        // TODO: Only for test, delete later
         val random = Random()
         val networkId = random.nextLong()
         val nick = "Network_${random.nextInt(1000)}"
