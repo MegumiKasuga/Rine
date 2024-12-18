@@ -1,6 +1,5 @@
 package edu.carole.rine.data.sqlite
 
-import android.R
 import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
@@ -34,6 +33,13 @@ class DBHelper(val context: Context):
             "server LONG, " +
             "is_group BOOLEAN)"
 
+    val createServerDb = "CREATE TABLE rine_server(" +
+            "id TEXT PRIMARY KEY DEFAULT ( UUID() ), " +
+            "net LONG, " +
+            "address TEXT, " +
+            "port INT, " +
+            "nick TEXT)"
+
     // val INVALID_UUID = UUID.fromString("0-0-0-0")
 
     val userTable = "rine_user"
@@ -46,6 +52,7 @@ class DBHelper(val context: Context):
             db?.execSQL(createUserDb)
             db?.execSQL(createNetworkDb)
             db?.execSQL(createChatDb)
+            db?.execSQL(createServerDb)
         } catch (exception: SQLException) {
             Log.e("db", exception.toString())
         }

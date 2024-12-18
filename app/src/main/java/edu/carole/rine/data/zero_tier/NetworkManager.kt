@@ -3,7 +3,11 @@ package edu.carole.rine.data.zero_tier
 import android.widget.Toast
 import com.zerotier.sockets.ZeroTierNode
 import edu.carole.rine.data.sqlite.DBHelper
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
 import java.util.Random
+import kotlin.math.floor
+import kotlin.math.min
 
 class NetworkManager(val db: DBHelper) {
 
@@ -29,17 +33,5 @@ class NetworkManager(val db: DBHelper) {
     fun removeNetwork(network: ZeroTierNetwork) {
         db.removeNetwork(network)
         Toast.makeText(db.context, "${network.nick} has removed", Toast.LENGTH_SHORT).show()
-    }
-
-    fun testNetwork(network: ZeroTierNetwork, delay: Long): Boolean {
-        val node = ZeroTierNode()
-        node.initFromStorage(network.storagePath)
-        node.initSetPort(network.port)
-        node.start()
-        if (!node.isOnline) {
-
-        }
-        node.join(network.networkId)
-        return false
     }
 }
