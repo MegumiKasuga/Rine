@@ -76,7 +76,6 @@ class GalleryFragment : Fragment(R.layout.fragment_network) {
 
                     dialog.dismiss()
                 } catch (e: NumberFormatException) {
-                    e.printStackTrace()
                     Toast.makeText(requireContext(), "网络ID或端口号格式错误", Toast.LENGTH_SHORT).show()
                 }
             } else {
