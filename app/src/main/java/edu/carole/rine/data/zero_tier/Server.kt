@@ -32,6 +32,10 @@ data class Server(val id: Long, val address: InetAddress,
     }
 
     fun getTCPSocket(controller: ServerController): ZeroTierSocket? {
+        return getTCPSocket(controller, port)
+    }
+
+    fun getTCPSocket(controller: ServerController, port: Short): ZeroTierSocket? {
         if (!controller.readyForTransmit()) return null
         try {
             return ZeroTierSocket(address.hostAddress, port.toInt())
@@ -42,6 +46,10 @@ data class Server(val id: Long, val address: InetAddress,
     }
 
     fun getUDPSocket(controller: ServerController): ZeroTierDatagramSocket? {
+        return getUDPSocket(controller, port)
+    }
+
+    fun getUDPSocket(controller: ServerController, port: Short): ZeroTierDatagramSocket? {
         if (!controller.readyForTransmit()) return null
         try {
             return ZeroTierDatagramSocket(port.toInt(), address)
@@ -52,17 +60,21 @@ data class Server(val id: Long, val address: InetAddress,
     }
 
     fun sendUdpPacket(controller: ServerController, payload: ByteArray): Boolean {
-        val udpSocket = getUDPSocket(controller)
+        return sendUdpPacket(controller, payload, port)
+    }
+
+    fun sendUdpPacket(controller: ServerController, payload: ByteArray, port: Short): Boolean {
+        val udpSocket = getUDPSocket(controller, port)
         if (udpSocket == null) return false
         udpSocket.send(DatagramPacket(payload, payload.size))
         udpSocket.close()
         return true
     }
 
-    fun sendTcpPacket(controller: ServerController, payload: JsonElement, delay: Int):
+    fun sendTcpPacket(controller: ServerController, payload: JsonElement, delay: Int, port: Short):
             ConnectionResult {
         val bytes = payload.toString().byteInputStream(Charsets.UTF_8)
-        val tcpSocket = getTCPSocket(controller)
+        val tcpSocket = getTCPSocket(controller, port)
         // internal error
         if (tcpSocket == null) return ConnectionResult(false, -1, null)
         var counter = 0
@@ -100,6 +112,11 @@ data class Server(val id: Long, val address: InetAddress,
             stateCode = jsonElement.asJsonObject.get("state").asInt
         }
         return ConnectionResult(stateCode > 0, stateCode, jsonElement)
+    }
+
+    fun sendTcpPacket(controller: ServerController, payload: JsonElement, delay: Int):
+            ConnectionResult {
+        return sendTcpPacket(controller, payload, delay, this.port)
     }
 
     data class ConnectionResult(val success: Boolean,
