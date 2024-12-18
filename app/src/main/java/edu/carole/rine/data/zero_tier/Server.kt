@@ -13,6 +13,24 @@ import kotlin.math.floor
 data class Server(val id: Long, val address: InetAddress,
                   val port: Short, val nick: String) {
 
+    override fun equals(other: Any?): Boolean {
+        if (other !is Server) return false
+        return this.port == other.port &&
+                this.address == other.address
+    }
+
+    override fun hashCode(): Int {
+        return toUniqueStr().hashCode()
+    }
+
+    fun toUniqueStr(): String {
+        return "[Server<$address, $port>]"
+    }
+
+    override fun toString(): String {
+        return "[Server<$id, $address, $port, $nick>]"
+    }
+
     fun getTCPSocket(controller: ServerController): ZeroTierSocket? {
         if (!controller.readyForTransmit()) return null
         try {
