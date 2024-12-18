@@ -14,6 +14,13 @@ class NetworkManager(val db: DBHelper) {
         val network = ZeroTierNetwork(networkId, nick, storagePath, port)
         db.addNetwork(network)
     }
+
+    fun addNetwork(network: ZeroTierNetwork) {
+        db.addNetwork(network)
+    }
+    fun updateNetwork(network: ZeroTierNetwork) {
+        //TODO: update network
+    }
 //    fun addRandomNetwork() {
 //        // TODO: Only for test, delete later
 //        val random = Random()
@@ -26,7 +33,7 @@ class NetworkManager(val db: DBHelper) {
 
     fun removeNetwork(network: ZeroTierNetwork) {
         db.removeNetwork(network)
-        Toast.makeText(db.context, "${network.nick} has removed", Toast.LENGTH_SHORT).show()
+        Toast.makeText(db.context, "${network.nick} has been removed", Toast.LENGTH_SHORT).show()
     }
 
 

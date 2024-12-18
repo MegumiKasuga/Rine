@@ -18,7 +18,6 @@ class NetworkAdapter(
     private var currentVisibleDeleteButton: Button? = null
     private var currentVisibleDisconnectTextView: TextView? = null
     private var currentVisibleEditButton: Button? = null
-    private var currentVisibleNickTextView: TextView? = null
 
     override fun getCount(): Int {
         return networks.size

@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import edu.carole.rine.R
 import edu.carole.rine.data.sqlite.DBHelper
 import edu.carole.rine.data.zero_tier.NetworkManager
+import edu.carole.rine.data.zero_tier.ServerController
 import edu.carole.rine.data.zero_tier.ZeroTierNetwork
 import java.io.File
 
@@ -59,20 +60,24 @@ class GalleryFragment : Fragment(R.layout.fragment_network) {
                     val ulongNetworkId = networkId.toULong(16)
                     val port = portStr.toShort()
                     
-                    // 使用应用内部存储目录
-                    val storagePath = File(requireContext().filesDir, "zerotier/$networkId").absolutePath
-
+                    // 创建内部存储目录
+                    val storageDir = File(requireContext().filesDir, "zerotier/$networkId")
+//                    val ts = storageDir.absolutePath
+//                    val n = ZeroTierNetwork("8bd5124fd6293707".toULong(16).toLong(), "Rine", ts, 1234)
+//                    val serverController = ServerController(n, 1000)
+                    if (!storageDir.exists()) {
+                        storageDir.mkdirs()
+                    }
+                    
                     val network = ZeroTierNetwork(
                         networkId = ulongNetworkId.toLong(),
                         nick = nick,
-                        storagePath = storagePath,
+                        storagePath = storageDir.absolutePath,
                         port = port
                     )
                     
-                    val list = ArrayList<ZeroTierNetwork>()
-                    list.add(network)
-                    adapter = NetworkAdapter(requireContext(), list)
-                    listView.adapter = adapter
+                    networkManager.addNetwork(network)
+                    adapter.notifyDataSetChanged()
 
                     dialog.dismiss()
                 } catch (e: NumberFormatException) {

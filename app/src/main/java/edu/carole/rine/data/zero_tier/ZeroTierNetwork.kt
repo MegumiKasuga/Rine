@@ -25,7 +25,8 @@ data class ZeroTierNetwork(
     
     fun getNode(delay: Long): NetworkInitResult {
         val node = ZeroTierNode()
-        node.initFromStorage(storagePath)
+        var p = storagePath
+        node.initFromStorage(p)
         node.initSetPort(port)
         return joinNetwork(node, delay)
     }
@@ -39,6 +40,7 @@ data class ZeroTierNetwork(
             while (!node.isOnline) {
                 if (counter >= times) {
                     result.setState(NetworkInitState.FAILED)
+                    //TODO:bug
                     node.stop()
                     return@Runnable
                 }

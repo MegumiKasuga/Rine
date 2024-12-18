@@ -192,7 +192,7 @@ class DBHelper(val context: Context) :
                 if (idColumn < 0 || storageColumn < 0 || portColumn < 0) return result
                 result.add(
                     ZeroTierNetwork(
-                        cursor.getString(idColumn).toULong().toLong(),
+                        cursor.getString(idColumn).toULong(16).toLong(),
                         cursor.getString(nickColumn),
                         cursor.getString(storageColumn),
                         cursor.getShort(portColumn)
@@ -233,7 +233,7 @@ class DBHelper(val context: Context) :
     }
 
     fun removeNetwork(network: ZeroTierNetwork) {
-        val id = network.networkId
+        val id = network.networkId.toULong().toString(16)
         val port = network.port
         getDataBase().delete(
             networkTable,
