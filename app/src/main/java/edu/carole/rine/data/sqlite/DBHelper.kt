@@ -1,6 +1,5 @@
 package edu.carole.rine.data.sqlite
 
-import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
@@ -10,7 +9,6 @@ import edu.carole.rine.data.model.Chat
 import edu.carole.rine.data.model.LoggedInUser
 import edu.carole.rine.data.zero_tier.Server
 import edu.carole.rine.data.zero_tier.ZeroTierNetwork
-import java.net.Inet4Address
 import java.net.InetAddress
 import java.sql.SQLException
 import java.util.UUID
@@ -25,7 +23,7 @@ class DBHelper(val context: Context) :
             "auto_login BOOLEAN)"
 
     val createNetworkDb = "CREATE TABLE rine_network(" +
-            "id LONG PRIMARY KEY, " +
+            "id TEXT PRIMARY KEY, " +
             "nick TEXT, " +
             "storage TEXT, " +
             "port SHORT)"
@@ -194,7 +192,7 @@ class DBHelper(val context: Context) :
                 if (idColumn < 0 || storageColumn < 0 || portColumn < 0) return result
                 result.add(
                     ZeroTierNetwork(
-                        cursor.getLong(idColumn),
+                        cursor.getString(idColumn).toULong().toLong(),
                         cursor.getString(nickColumn),
                         cursor.getString(storageColumn),
                         cursor.getShort(portColumn)
@@ -209,7 +207,7 @@ class DBHelper(val context: Context) :
     fun addNetwork(network: ZeroTierNetwork): Boolean {
         if (getAllNetworks().contains(network)) return false
         val content = ContentValues().apply {
-            put("id", network.networkId)
+            put("id", network.networkId.toULong().toString(16))
             put("nick", network.nick)
             put("storage", network.storagePath)
             put("port", network.port)

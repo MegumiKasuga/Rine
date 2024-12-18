@@ -54,9 +54,9 @@ class ServerController {
         node.stop()
     }
 
-    fun leaveNetwork() {
-        node.leave(net.networkId)
-    }
+//    fun leaveNetwork() {
+//        node
+//    }
 
     fun getNode(): ZeroTierNode {
         return node
