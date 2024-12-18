@@ -1,6 +1,5 @@
 package edu.carole.rine.data.sqlite
 
-import android.R
 import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
@@ -9,7 +8,10 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
 import edu.carole.rine.data.model.Chat
 import edu.carole.rine.data.model.LoggedInUser
+import edu.carole.rine.data.zero_tier.Server
 import edu.carole.rine.data.zero_tier.ZeroTierNetwork
+import java.net.Inet4Address
+import java.net.InetAddress
 import java.sql.SQLException
 import java.util.UUID
 
@@ -34,11 +36,19 @@ class DBHelper(val context: Context) :
             "server LONG, " +
             "is_group BOOLEAN)"
 
+    val createServerDb = "CREATE TABLE rine_server(" +
+            "id LONG PRIMARY KEY, " +
+            "net LONG, " +
+            "address TEXT, " +
+            "port INT, " +
+            "nick TEXT)"
+
     // val INVALID_UUID = UUID.fromString("0-0-0-0")
 
     val userTable = "rine_user"
     val networkTable = "rine_network"
     val chatTable = "rine_chat"
+    val serverTable = "rine_server"
 
     override fun onCreate(db: SQLiteDatabase?) {
         // TODO("Not yet implemented")
@@ -46,6 +56,7 @@ class DBHelper(val context: Context) :
             db?.execSQL(createUserDb)
             db?.execSQL(createNetworkDb)
             db?.execSQL(createChatDb)
+            db?.execSQL(createServerDb)
         } catch (exception: SQLException) {
             Log.e("db", exception.toString())
         }
@@ -300,6 +311,49 @@ class DBHelper(val context: Context) :
         }
         cursor.close()
         return null
+    }
+
+    fun getAllServers(): Map<Server, Long> {
+        val db = getDataBase()
+        val cursor = db.query(serverTable, arrayOf("id", "net", "address", "port", "nick"),
+            null, null, null, null, null)
+        val result = HashMap<Server, Long>()
+        if (cursor.moveToFirst()) {
+            do {
+                val idColumn = cursor.getColumnIndex("id")
+                val netColumn = cursor.getColumnIndex("net")
+                val addrColumn = cursor.getColumnIndex("address")
+                val portColumn = cursor.getColumnIndex("port")
+                val nickColumn = cursor.getColumnIndex("nick")
+                if (idColumn < 0 || netColumn < 0 || addrColumn < 0 || portColumn < 0 || nickColumn < 0)
+                    return result
+                result.put(
+                    Server(cursor.getLong(idColumn),
+                    InetAddress.getByName(cursor.getString(addrColumn)),
+                    cursor.getInt(portColumn).toShort(),
+                    cursor.getString(nickColumn)),
+                    cursor.getLong(netColumn))
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return result
+    }
+
+    fun addServer(server: Server, net: Long): Boolean {
+        if (getAllServers().contains(server)) return false
+        val content = ContentValues().apply {
+            put("id", server.id)
+            put("address", server.address.hostAddress)
+            put("port", server.port.toInt())
+            put("nick", server.nick)
+            put("net", net)
+        }
+        getDataBase().insert(serverTable, null, content)
+        return true
+    }
+
+    fun removeServer(id: Long) {
+        getDataBase().delete(serverTable, "id=?", arrayOf(id.toString()))
     }
 }
 
