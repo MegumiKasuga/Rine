@@ -11,11 +11,13 @@ import androidx.core.view.WindowInsetsCompat
 import edu.carole.rine.data.RineData
 import edu.carole.rine.data.sqlite.DBHelper
 import edu.carole.rine.data.zero_tier.NetworkManager
+import edu.carole.rine.data.zero_tier.Server
 import edu.carole.rine.data.zero_tier.ServerController
 import edu.carole.rine.data.zero_tier.ZeroTierNetwork
 import edu.carole.rine.ui.login.RineLoginActivity
 import kotlinx.coroutines.delay
 import java.io.File
+import java.net.InetAddress
 import java.util.Random
 
 class WelcomeActivity : AppCompatActivity() {
@@ -28,7 +30,6 @@ class WelcomeActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
         val thread = Thread { ->
             Thread.sleep(3000)
             val intent = Intent(this.baseContext, RineLoginActivity::class.java)
@@ -37,6 +38,8 @@ class WelcomeActivity : AppCompatActivity() {
         }
 
         val data = application as RineData
+        val server = Server(0, InetAddress.getByName("192.168.191.38"), 9998, "")
+        data.networkManager.addServer(server, data.networkManager.getNetworks()[0])
         thread.start()
     }
 }

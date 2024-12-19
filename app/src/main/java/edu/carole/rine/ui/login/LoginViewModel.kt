@@ -6,11 +6,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import android.util.Patterns
+import com.google.gson.JsonObject
 import edu.carole.rine.data.Result
 
 import edu.carole.rine.R
 import edu.carole.rine.data.model.LoggedInUser
 import edu.carole.rine.data.sqlite.DBHelper
+import edu.carole.rine.data.zero_tier.NetworkManager
+import edu.carole.rine.data.zero_tier.ServerController
+import edu.carole.rine.data.zero_tier.ZeroTierNetwork
 import java.io.IOException
 import java.util.UUID
 
@@ -23,9 +27,11 @@ class LoginViewModel : ViewModel {
 
     private val _loginResult = MutableLiveData<LoginResult>()
     val loginResult: LiveData<LoginResult> = _loginResult
+    val networkManager: NetworkManager
 
-    constructor(db: DBHelper) : super() {
+    constructor(db: DBHelper, networkManager: NetworkManager) : super() {
         this.db = db
+        this.networkManager = networkManager
     }
 
     fun login(username: String, password: String, autoLogin: Boolean, rememberMe: Boolean, sp: SharedPreferences) {
@@ -42,8 +48,24 @@ class LoginViewModel : ViewModel {
                 if (id == null) {
                     db.removeUser(username)
                     Result.Error(Exception("Unexpected Error in login"))
-                } else
-                    Result.Success(LoggedInUser(id, username))
+                } else {
+                    val user = LoggedInUser(id, username)
+                    val obj = JsonObject().apply {
+                        addProperty("service_code", 1)
+                        val contentObj = JsonObject().apply {
+                            addProperty("id", id.toString())
+                            addProperty("token",  user.getToken(password))
+                        }
+                        add("content", contentObj)
+                    }
+
+                    networkManager.servers.forEach {
+                        key, value -> value.getServers().forEach { server ->
+                            val result = networkManager.sendTcpPacket(key.networkId, server.id, obj, 60000)
+                        }
+                    }
+                    Result.Success(user)
+                }
             } else {
                 Result.Error(Exception("Wrong Username or password!"))
             }
