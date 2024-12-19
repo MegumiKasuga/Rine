@@ -9,7 +9,7 @@ data class LoggedInUser(
     val userId: UUID,
     val displayName: String
 ) {
-    fun getToken(): Int {
-        return userId.hashCode() * 31 + displayName.hashCode()
+    fun getToken(pass: String): Int {
+        return userId.hashCode() * 31 + displayName.hashCode() * 31 + pass.hashCode()
     }
 }
