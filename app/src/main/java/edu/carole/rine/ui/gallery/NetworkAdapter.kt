@@ -113,9 +113,8 @@ class NetworkAdapter(
 
         holder.testButton.setOnClickListener {
             val network = networks.getNetworks()[position]
-            testNetwork(network)
             // 测试后立即更新状态显示
-            val isConnected = networks.isJoined(network)
+            val isConnected = testNetwork(network)
             // 隐藏所有按钮
             holder.setButtonsVisibility(false)
             // 根据连接状态显示对应文本
@@ -143,7 +142,7 @@ class NetworkAdapter(
         networkIdInput.setText(network.networkId.toULong().toString(16))
         networkIdInput.isEnabled = false
         nickInput.setText(network.nick)
-        portInput.setText(network.port.toString())
+        portInput.setText(network.port.toUShort().toString())
 
         val dialog = AlertDialog.Builder(context)
             .setView(dialogView)
@@ -155,7 +154,7 @@ class NetworkAdapter(
 
             if (nick.isNotEmpty() && portStr.isNotEmpty()) {
                 try {
-                    val port = portStr.toShort()
+                    val port = portStr.toUShort().toShort()
                     val updatedNetwork = network.copy(
                         nick = nick,
                         port = port

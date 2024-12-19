@@ -8,6 +8,7 @@ import com.zerotier.sockets.ZeroTierSocket
 import java.io.IOException
 import java.net.DatagramPacket
 import java.net.InetAddress
+import java.net.SocketAddress
 import kotlin.math.floor
 
 data class Server(val id: Long, val address: InetAddress,
@@ -47,7 +48,8 @@ data class Server(val id: Long, val address: InetAddress,
 
     fun getUdpSocket(port: Short): ZeroTierDatagramSocket? {
         try {
-            val socket = ZeroTierDatagramSocket(port.toInt(), this.address)
+            val socket = ZeroTierDatagramSocket()
+            socket.connect(address, port.toInt())
             return socket
         } catch (exception: Exception) {
             Log.e("failed to create UDP Socket", exception.message.orEmpty())
@@ -59,19 +61,23 @@ data class Server(val id: Long, val address: InetAddress,
         return getUdpSocket(this.port)
     }
 
-    fun sendUdpPacket(payload: ByteArray): Boolean {
+    fun sendUdpPacket(payload: ByteArray): UdpConnectionResult {
         return sendUdpPacket(payload, port)
     }
 
-    fun sendUdpPacket(payload: ByteArray, port: Short): Boolean {
+    fun sendUdpPacket(payload: ByteArray, port: Short): UdpConnectionResult {
         val udpSocket = getUdpSocket(port)
-        if (udpSocket == null) return false
+        if (udpSocket == null) return UdpConnectionResult(false, ByteArray(0))
         udpSocket.send(DatagramPacket(payload, payload.size))
+        val receivedBytes = ByteArray(udpSocket.receiveBufferSize)
+        udpSocket.receive(DatagramPacket(
+            receivedBytes, udpSocket.receiveBufferSize)
+        )
         udpSocket.close()
-        return true
+        return UdpConnectionResult(true, receivedBytes)
     }
 
-    fun sendTcpPacket(payload: JsonElement, delay: Int, port: Short):
+    fun sendTcpPacket(payload: JsonElement, delay: Long, port: Short):
             ConnectionResult {
         val bytes = payload.toString().byteInputStream(Charsets.UTF_8)
         val tcpSocket = getTcpSocket(port)
@@ -114,7 +120,7 @@ data class Server(val id: Long, val address: InetAddress,
         return ConnectionResult(stateCode > 0, stateCode, jsonElement)
     }
 
-    fun sendTcpPacket(payload: JsonElement, delay: Int):
+    fun sendTcpPacket(payload: JsonElement, delay: Long):
             ConnectionResult {
         return sendTcpPacket(payload, delay, this.port)
     }
@@ -122,4 +128,7 @@ data class Server(val id: Long, val address: InetAddress,
     data class ConnectionResult(val success: Boolean,
                                 val stateCode: Int,
                                 val reply: JsonElement?)
+
+    data class UdpConnectionResult(val success: Boolean,
+                                val reply: ByteArray)
 }
