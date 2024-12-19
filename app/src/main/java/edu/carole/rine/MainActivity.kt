@@ -65,13 +65,33 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+        
+        // 添加导航菜单项的点击监听
+        navView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.nav_quit -> {
+                    showQuitConfirmDialog()
+                    true
+                }
+                else -> {
+                    navController.navigate(menuItem.itemId)
+                    drawerLayout.closeDrawers()
+                    true
+                }
+            }
+        }
     }
 
-//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        menuInflater.inflate(R.menu.main, menu)
-//        return true
-//    }
+    private fun showQuitConfirmDialog() {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(R.string.quit_dialog_title)
+            .setMessage(R.string.quit_dialog_message)
+            .setPositiveButton(R.string.quit_dialog_confirm) { _, _ ->
+                finish()
+            }
+            .setNegativeButton(R.string.quit_dialog_cancel, null)
+            .show()
+    }
 
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
@@ -90,5 +110,20 @@ class MainActivity : AppCompatActivity() {
 
     fun getDb(): DBHelper {
         return db
+    }
+
+    override fun onBackPressed() {
+        if (binding.drawerLayout.isDrawerOpen(binding.navigation)) {
+            binding.drawerLayout.closeDrawer(binding.navigation)
+        } else {
+            val navController = findNavController(R.id.nav_host_fragment_content_main)
+            // 如果当前不在主页，先导航到主页
+            if (navController.currentDestination?.id != R.id.nav_home) {
+                navController.navigate(R.id.nav_home)
+            } else {
+                // 如果已经在主页，显示退出确认对话框
+                showQuitConfirmDialog()
+            }
+        }
     }
 }
