@@ -7,10 +7,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
+import android.widget.Button
 import android.widget.ListView
+import androidx.appcompat.widget.AppCompatImageButton
 import androidx.core.view.doOnAttach
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import edu.carole.rine.R
 import edu.carole.rine.data.model.Chat
 import edu.carole.rine.databinding.FragmentHomeBinding
@@ -54,7 +57,14 @@ class HomeFragment : Fragment() {
         }
         chatTitleList.divider = null
         chatTitleList.adapter = ChatAdapter(context as Context, R.layout.chat_item, chats)
+        //绑定添加chat的按钮
+        val addButton: AppCompatImageButton = view.findViewById(R.id.add_chat_button)
+        addButton.setOnClickListener{
+            findNavController().navigate(R.id.nav_search)
+        }
+
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
