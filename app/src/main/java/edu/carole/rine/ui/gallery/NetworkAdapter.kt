@@ -150,8 +150,8 @@ class NetworkAdapter(
         dialog.show()
     }
 
-    private fun testNetwork(network: ZeroTierNetwork) {
-        networks.isJoined(network)
+    private fun testNetwork(network: ZeroTierNetwork): Boolean {
+        return networks.isJoined(network)
     }
 
     fun updateNetworks(newNetworks: List<ZeroTierNetwork>) {

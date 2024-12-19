@@ -15,6 +15,6 @@ class RineData: Application() {
         super.onCreate()
         val storageDir = File(baseContext.filesDir, "zerotier/")
         db = DBHelper(baseContext)
-        networkManager = NetworkManager(db, storageDir.absolutePath, null)
+        networkManager = NetworkManager(db, storageDir.absolutePath, null, 60000)
     }
 }

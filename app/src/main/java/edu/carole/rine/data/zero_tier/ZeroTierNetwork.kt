@@ -16,8 +16,8 @@ data class ZeroTierNetwork(
     }
 
     override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + networkId.hashCode()
+        var result = 0
+        result = networkId.hashCode()
         result = 31 * result + port
         return result
     }

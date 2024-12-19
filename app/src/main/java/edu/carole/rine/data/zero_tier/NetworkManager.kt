@@ -2,6 +2,7 @@ package edu.carole.rine.data.zero_tier
 
 import android.util.Log
 import android.widget.Toast
+import androidx.core.util.Consumer
 import com.google.gson.JsonElement
 import com.google.gson.JsonParser
 import com.zerotier.sockets.ZeroTierDatagramSocket
@@ -19,7 +20,8 @@ class NetworkManager {
     val node: ZeroTierNode
     val servers: HashMap<ZeroTierNetwork, ServerController>
     val storagePath: String
-    constructor(db: DBHelper, storagePath: String, port: Short?) {
+
+    constructor(db: DBHelper, storagePath: String, port: Short?, delay: Long) {
         this.db = db
         this.storagePath = storagePath
         this.node = ZeroTierNode()
@@ -28,6 +30,24 @@ class NetworkManager {
             node.initSetPort(port)
         node.start()
         servers = HashMap<ZeroTierNetwork, ServerController>()
+        val networks = getNetworks()
+        networks.forEach { net ->
+            servers.put(net, ServerController(net))
+            val thread = Thread {
+                var counter = 0
+                val times = delay / 100
+                if (!node.isOnline) {
+                    if (counter > times) {
+                        Log.e("node online Overtime!", "waiting for over $delay ms!")
+                        return@Thread
+                    }
+                    Thread.sleep(100)
+                    counter++
+                }
+                node.join(net.networkId)
+            }
+            thread.start()
+        }
     }
 
     fun isNodeOnline(): Boolean {
@@ -96,7 +116,6 @@ class NetworkManager {
             networksList[index] = updatedNetwork
         }
     }
-
 }
 
 
