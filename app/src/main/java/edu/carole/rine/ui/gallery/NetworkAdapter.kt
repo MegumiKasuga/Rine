@@ -1,5 +1,6 @@
 package edu.carole.rine.ui.gallery
 
+import android.app.AlertDialog
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -56,30 +57,25 @@ class NetworkAdapter(
         holder.nickTextView.text = network.nick
         holder.portTextView.text = network.port.toString()
 
-        view.setOnClickListener {
-            if (holder.deleteButton.visibility == View.VISIBLE) {
-                holder.deleteButton.visibility = View.GONE
-                holder.editButton.visibility = View.GONE
-                holder.testButton.visibility = View.GONE
-                holder.disconnectTextView.visibility = View.VISIBLE
-                currentVisibleDeleteButton = null
-                currentVisibleEditButton = null
-                currentVisibleTestButton = null
-                currentVisibleDisconnectTextView = null
-            } else {
-                currentVisibleDeleteButton?.visibility = View.GONE
-                currentVisibleEditButton?.visibility = View.GONE
-                currentVisibleTestButton?.visibility = View.GONE
-                currentVisibleDisconnectTextView?.visibility = View.VISIBLE
-                holder.deleteButton.visibility = View.VISIBLE
-                holder.editButton.visibility = View.VISIBLE
-                holder.testButton.visibility = View.VISIBLE
-                holder.disconnectTextView.visibility = View.GONE
-                currentVisibleDeleteButton = holder.deleteButton
-                currentVisibleEditButton = holder.editButton
-                currentVisibleTestButton = holder.testButton
-                currentVisibleDisconnectTextView = holder.disconnectTextView
+        fun ViewHolder.setButtonsVisibility(showButtons: Boolean) {
+            with(this) {
+                deleteButton.visibility = if (showButtons) View.VISIBLE else View.GONE
+                editButton.visibility = if (showButtons) View.VISIBLE else View.GONE
+                testButton.visibility = if (showButtons) View.VISIBLE else View.GONE
+                disconnectTextView.visibility = if (showButtons) View.GONE else View.VISIBLE
             }
+            currentVisibleDeleteButton = if (showButtons) deleteButton else null
+            currentVisibleEditButton = if (showButtons) editButton else null
+            currentVisibleTestButton = if (showButtons) testButton else null
+            currentVisibleDisconnectTextView = if (showButtons) disconnectTextView else null
+        }
+
+        view.setOnClickListener {
+            val shouldShowButtons = holder.deleteButton.visibility != View.VISIBLE
+            currentVisibleDeleteButton?.let {
+                (it.parent.parent as? ViewHolder)?.setButtonsVisibility(false)
+            }
+            holder.setButtonsVisibility(shouldShowButtons)
         }
 
         // 设置 deleteButton 的点击事件
@@ -89,6 +85,8 @@ class NetworkAdapter(
             updateNetworks(networkManager.getNetworks())
         }
         holder.editButton.setOnClickListener {
+            //TODO: use bellow code after NetworkManager finished
+//            showEditDialog(network)
             Toast.makeText(context, "你惊动了Edit按钮！", Toast.LENGTH_SHORT).show()
         }
         holder.testButton.setOnClickListener {
@@ -98,14 +96,72 @@ class NetworkAdapter(
         return view
     }
 
+
+//    private fun showEditDialog(network: ZeroTierNetwork) {
+    // TODO: use bellow code after NetworkManager finished
+
+//        // 编辑网络信息
+//        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_network_input, null)
+//
+//        val networkIdInput = dialogView.findViewById<EditText>(R.id.network_id_input)
+//        val nickInput = dialogView.findViewById<EditText>(R.id.nick_input)
+//        val portInput = dialogView.findViewById<EditText>(R.id.port_input)
+//        val positiveButton = dialogView.findViewById<Button>(R.id.positive_button)
+//        val negativeButton = dialogView.findViewById<Button>(R.id.negative_button)
+//
+//
+//        networkIdInput.setText(network.networkId.toString(16))
+//        networkIdInput.isEnabled = false
+//        nickInput.setText(network.nick)
+//        portInput.setText(network.port.toString())
+//
+//        val dialog = AlertDialog.Builder(context)
+//            .setView(dialogView)
+//            .create()
+//
+//        positiveButton.setOnClickListener {
+//            val nick = nickInput.text.toString()
+//            val portStr = portInput.text.toString()
+//
+//            if (nick.isNotEmpty() && portStr.isNotEmpty()) {
+//                try {
+//                    val port = portStr.toShort()
+//                    val updatedNetwork = network.copy(
+//                        nick = nick,
+//                        port = port
+//                    )
+//
+//                    val networkManager = NetworkManager(DBHelper(context))
+//                    networkManager.updateNetwork(updatedNetwork)
+//                    updateNetworks(networkManager.getNetworks())
+//
+//                    dialog.dismiss()
+//                } catch (e: NumberFormatException) {
+//                    Toast.makeText(context, "wrong port", Toast.LENGTH_SHORT).show()
+//                }
+//            } else {
+//                Toast.makeText(context, "please fill all blank", Toast.LENGTH_SHORT).show()
+//            }
+//        }
+//
+//        negativeButton.setOnClickListener {
+//            dialog.dismiss()
+//        }
+//
+//        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+//        dialog.show()
+//    }
+
     private fun testNetwork(network: ZeroTierNetwork) {
-            val serverController = ServerController(network, 1000)
-            serverController.retryConnect(1000)
+        val serverController = ServerController(network, 1000)
+        serverController.retryConnect(1000)
     }
+
     fun updateNetworks(newNetworks: List<ZeroTierNetwork>) {
         this.networks = newNetworks
         notifyDataSetChanged()
     }
+
     private class ViewHolder {
         lateinit var nickTextView: TextView
         lateinit var portTextView: TextView
