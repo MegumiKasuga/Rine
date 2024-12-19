@@ -37,9 +37,15 @@ class DBHelper(val context: Context) :
             "id LONG PRIMARY KEY, " +
             "net TEXT, " +
             "address TEXT, " +
-            "port INT, " +
+            "port SHORT, " +
             "nick TEXT)"
 
+    val createChatMessageDb = "CREATE TABLE rine_chat_message(" +
+            "id LONG PRIMARY KEY, " +
+            "chat_id LONG, " +
+            "sender_id TEXT, " +
+            "message TEXT, " +
+            "timestamp LONG)"
     // val INVALID_UUID = UUID.fromString("0-0-0-0")
 
     val userTable = "rine_user"
@@ -213,19 +219,18 @@ class DBHelper(val context: Context) :
         return true
     }
 
-    fun updateNetwork(network: ZeroTierNetwork, newNetwork: ZeroTierNetwork): Boolean {
-        val networks = getAllNetworks()
-        if (network !in networks) return false
+    fun updateNetwork(network: ZeroTierNetwork): Boolean {
         val content = ContentValues().apply {
-            put("id", newNetwork.networkId)
-            put("nick", newNetwork.nick)
-            put("port", newNetwork.port)
+            put("nick", network.nick)
+            put("port", network.port)
         }
-        getDataBase().update(
-            networkTable, content, "id=? AND port=?",
-            arrayOf(network.networkId.toString(), network.port.toString())
+        val result = getDataBase().update(
+            networkTable,
+            content,
+            "id=?",
+            arrayOf(network.networkId.toULong().toString(16))
         )
-        return true
+        return result > 0
     }
 
     fun removeNetwork(network: ZeroTierNetwork) {
@@ -284,6 +289,8 @@ class DBHelper(val context: Context) :
         val id = chat.id
         getDataBase().delete(chatTable, "id=?", arrayOf(id.toString()))
     }
+
+
 
     fun getAutoLogin(): LoggedInUser? {
         val db = getDataBase()
@@ -349,5 +356,6 @@ class DBHelper(val context: Context) :
     fun removeServer(id: Long) {
         getDataBase().delete(serverTable, "id=?", arrayOf(id.toString()))
     }
+
 }
 
