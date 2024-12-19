@@ -52,6 +52,7 @@ class DBHelper(val context: Context) :
     val networkTable = "rine_network"
     val chatTable = "rine_chat"
     val serverTable = "rine_server"
+    val chatMessageTable = "rine_chat_message"
 
     override fun onCreate(db: SQLiteDatabase?) {
         // TODO("Not yet implemented")
@@ -60,6 +61,7 @@ class DBHelper(val context: Context) :
             db?.execSQL(createNetworkDb)
             db?.execSQL(createChatDb)
             db?.execSQL(createServerDb)
+            db?.execSQL(createChatMessageDb)
         } catch (exception: SQLException) {
             Log.e("db", exception.toString())
         }
@@ -291,6 +293,115 @@ class DBHelper(val context: Context) :
     }
 
 
+    data class ChatMessage(
+        val id: Long,
+        val chatId: Long,
+        val senderId: UUID,
+        val message: String,
+        val timestamp: Long
+    )
+
+    fun getChatMessages(chatId: Long): List<ChatMessage> {
+        val db = getDataBase()
+        val cursor = db.query(
+            chatMessageTable,
+            arrayOf("id", "chat_id", "sender_id", "message", "timestamp"),
+            "chat_id=?",
+            arrayOf(chatId.toString()),
+            null,
+            null,
+            "timestamp DESC"
+        )
+
+        val messages = mutableListOf<ChatMessage>()
+
+        if (cursor.moveToFirst()) {
+            do {
+                val id = cursor.getLong(cursor.getColumnIndexOrThrow("id"))
+                val senderId = UUID.fromString(cursor.getString(cursor.getColumnIndexOrThrow("sender_id")))
+                val message = cursor.getString(cursor.getColumnIndexOrThrow("message"))
+                val timestamp = cursor.getLong(cursor.getColumnIndexOrThrow("timestamp"))
+
+                messages.add(ChatMessage(id, chatId, senderId, message, timestamp))
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return messages
+    }
+
+    fun addChatMessage(message: ChatMessage): Boolean {
+        val content = ContentValues().apply {
+            put("id", message.id)
+            put("chat_id", message.chatId)
+            put("sender_id", message.senderId.toString())
+            put("message", message.message)
+            put("timestamp", message.timestamp)
+        }
+
+        return try {
+            getDataBase().insert(chatMessageTable, null, content) != -1L
+        } catch (e: Exception) {
+            Log.e("DBHelper", "Error adding chat message", e)
+            false
+        }
+    }
+
+    fun deleteChatMessage(messageId: Long, chatId: Long, timestamp: Long): Boolean {
+        return try {
+            val deletedRows = getDataBase().delete(
+                chatMessageTable,
+                "id = ? AND chat_id = ? AND timestamp = ?",
+                arrayOf(messageId.toString(), chatId.toString(), timestamp.toString())
+            )
+
+            if (deletedRows > 0) {
+                Log.d("DBHelper", "成功删除消息: ID=$messageId, ChatID=$chatId, Timestamp=$timestamp")
+                true
+            } else {
+                Log.w("DBHelper", "未找到符合条件的消息")
+                false
+            }
+        } catch (e: Exception) {
+            Log.e("DBHelper", "删除消息时发生错误: ${e.message}", e)
+            false
+        }
+    }
+
+    fun getLatestMessage(chatId: Long): ChatMessage? {
+        val db = getDataBase()
+        val cursor = db.query(
+            chatMessageTable,
+            arrayOf("id", "chat_id", "sender_id", "message", "timestamp"),
+            "chat_id=?",
+            arrayOf(chatId.toString()),
+            null,
+            null,
+            "timestamp DESC",
+            "1"
+        )
+
+        var message: ChatMessage? = null
+        if (cursor.moveToFirst()) {
+            message = ChatMessage(
+                cursor.getLong(cursor.getColumnIndexOrThrow("id")),
+                chatId,
+                UUID.fromString(cursor.getString(cursor.getColumnIndexOrThrow("sender_id"))),
+                cursor.getString(cursor.getColumnIndexOrThrow("message")),
+                cursor.getLong(cursor.getColumnIndexOrThrow("timestamp"))
+            )
+        }
+        cursor.close()
+        return message
+    }
+
+    fun deleteAllChatMessages(chatId: Long): Boolean {
+        return try {
+            getDataBase().delete(chatMessageTable, "chat_id=?", arrayOf(chatId.toString())) > 0
+        } catch (e: Exception) {
+            Log.e("DBHelper", "Error deleting chat messages", e)
+            false
+        }
+    }
 
     fun getAutoLogin(): LoggedInUser? {
         val db = getDataBase()
