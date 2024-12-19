@@ -2,6 +2,7 @@ package edu.carole.rine.data.zero_tier
 
 import android.widget.Toast
 import edu.carole.rine.data.sqlite.DBHelper
+import java.io.File
 
 class NetworkManager(val db: DBHelper) {
 
@@ -9,32 +10,49 @@ class NetworkManager(val db: DBHelper) {
         return db.getAllNetworks()
     }
 
-    fun addNetwork(networkId: Long, nick: String, storagePath: String, port: Short) {
-        // ToDO: add real network
-        val network = ZeroTierNetwork(networkId, nick, storagePath, port)
-        db.addNetwork(network)
-    }
+//    fun addNetwork(networkId: Long, nick: String, storagePath: String, port: Short) {
+//        // ToDO: add real network
+//        val network = ZeroTierNetwork(networkId, nick, storagePath, port)
+//        db.addNetwork(network)
+//    }
 
     fun addNetwork(network: ZeroTierNetwork) {
         db.addNetwork(network)
     }
-    fun updateNetwork(network: ZeroTierNetwork) {
-        //TODO: update network
+
+private fun deleteDirectory(dir: File): Boolean {
+    if (dir.isDirectory) {
+        val children = dir.listFiles()
+        if (children != null) {
+            for (child in children) {
+                val success = deleteDirectory(child)
+                if (!success) {
+                    return false
+                }
+            }
+        }
     }
-//    fun addRandomNetwork() {
-//        // TODO: Only for test, delete later
-//        val random = Random()
-//        val networkId = random.nextLong().toString()
-//        val nick = "Network_${random.nextInt(1000)}"
-//        val storagePath = "/path/to/storage_${random.nextInt(1000)}"
-//        val port = (random.nextInt(65535 - 1024) + 1024).toShort()
-//        addNetwork(networkId, nick, storagePath, port)
-//    }
+    return dir.delete()
+}
 
     fun removeNetwork(network: ZeroTierNetwork) {
-        db.removeNetwork(network)
-        Toast.makeText(db.context, "${network.nick} has been removed", Toast.LENGTH_SHORT).show()
+        try {
+            val storageDir = File(network.storagePath)
+            if (storageDir.exists()) {
+                val deleted = deleteDirectory(storageDir)
+                if (!deleted) {
+                    Toast.makeText(db.context, "Cannot delete", Toast.LENGTH_SHORT).show()
+                    return
+                }
+            }
+
+            db.removeNetwork(network)
+            Toast.makeText(db.context, "id: ${network.networkId} has been removed", Toast.LENGTH_SHORT).show()
+
+        } catch (e: Exception) {
+            Toast.makeText(db.context, "There's something wrong...", Toast.LENGTH_SHORT).show()
+        }
     }
-
-
 }
+
+

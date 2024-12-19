@@ -77,14 +77,14 @@ class GalleryFragment : Fragment(R.layout.fragment_network) {
                     )
                     
                     networkManager.addNetwork(network)
-                    adapter.notifyDataSetChanged()
+                    adapter.updateNetworks(networkManager.getNetworks())  // 更新列表
 
                     dialog.dismiss()
                 } catch (e: NumberFormatException) {
-                    Toast.makeText(requireContext(), "网络ID或端口号格式错误", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "network id or port wrong", Toast.LENGTH_SHORT).show()
                 }
             } else {
-                Toast.makeText(requireContext(), "请填写所有字段", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "please fill all blank", Toast.LENGTH_SHORT).show()
             }
         }
 
