@@ -56,7 +56,7 @@ class SearchFragment : Fragment() {
 
         addButton.setOnClickListener{
             // 添加新的chat操作
-            //chats.add(dummyChat)
+            chats.add(dummyChat)
             searchChatList.divider = null
             searchChatList.adapter = SearchChatAdapter(context as Context, R.layout.search_chat_item, chats, dbHelper)
         }

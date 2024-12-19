@@ -59,7 +59,7 @@ class ChatActivity : AppCompatActivity() {
 
 
 //        val chatWindow = this.binding.chatWindow
-
+//
 //        chatWindow?.viewTreeObserver?.addOnGlobalLayoutListener {
 //            for (box in chatWindow.children) {
 //                box.y = offset
@@ -69,8 +69,8 @@ class ChatActivity : AppCompatActivity() {
 //        var trans = supportFragmentManager.beginTransaction()
 //        trans.add(R.id.chat_window, chatBox)
 //        trans.commit()
-        // supportFragmentManager.putFragment(Bundle.EMPTY, "dummy", chatBox)
-
+//         supportFragmentManager.putFragment(Bundle.EMPTY, "dummy", chatBox)
+//
 //        val navView: BottomNavigationView = binding.navView
 //
 //        val navController = findNavController(R.id.nav_host_fragment_activity_chat)
