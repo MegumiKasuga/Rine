@@ -1,10 +1,13 @@
 package edu.carole.rine.ui.chat
 
 import android.os.Bundle
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import edu.carole.rine.R
+import edu.carole.rine.data.RineData
 import edu.carole.rine.data.model.LoggedInUser
 import edu.carole.rine.data.model.Msg
+import edu.carole.rine.data.sqlite.DBHelper
 import edu.carole.rine.databinding.ActivityChatBinding
 import java.util.UUID
 
@@ -12,6 +15,7 @@ class ChatActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityChatBinding
     private lateinit var viewModel: ChatViewModel
+    private lateinit var db: DBHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,7 +23,7 @@ class ChatActivity : AppCompatActivity() {
 
         binding = ActivityChatBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        db = (application as RineData).db
         // viewModel = ViewModelProvider(this, ChatViewModelFactory(ZTHelper(), DBHelper(this)))
             // .get(ChatViewModel::class.java)
 
@@ -37,14 +41,23 @@ class ChatActivity : AppCompatActivity() {
         msgList.add(Msg(user1, "24岁，是学生"))
         msgList.add(Msg(user2, "鸭蛋摸鸭蛋，牡蛎摸牡蛎"))
         msgList.add(Msg(user3, "1145141919810"))
-
         val adapter = MsgAdapter(this, R.layout.msg_item, msgList)
         listView.divider = null
         listView.adapter = adapter
 
+        sendMsgBtn.setOnClickListener {
+            val msgContent = msgEditor.text.toString()
+            msgList.add(Msg(user1, msgContent))
+            adapter.notifyDataSetChanged()
+            msgEditor.text.clear()
+        }
         returnBtn.setOnClickListener {
             finish()
         }
+
+
+
+
 //        val chatWindow = this.binding.chatWindow
 
 //        chatWindow?.viewTreeObserver?.addOnGlobalLayoutListener {
@@ -71,4 +84,5 @@ class ChatActivity : AppCompatActivity() {
 //        setupActionBarWithNavController(navController, appBarConfiguration)
 //        navView.setupWithNavController(navController)
     }
+
 }
