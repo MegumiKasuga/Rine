@@ -37,9 +37,6 @@ class WelcomeActivity : AppCompatActivity() {
         }
 
         val data = application as RineData
-        data.db = DBHelper(baseContext)
-        val storageDir = File(baseContext.filesDir, "zerotier/")
-        data.networkManager = NetworkManager(data.db, storageDir.absolutePath, null, 60000)
         thread.start()
     }
 }

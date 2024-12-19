@@ -16,6 +16,9 @@ class RineData: Application() {
 
     override fun onCreate() {
         super.onCreate()
+        db = DBHelper(baseContext)
+        val storageDir = File(baseContext.filesDir, "zerotier/")
+        networkManager = NetworkManager(db, storageDir.absolutePath, null, 60000)
         chatCache = HashMap()
     }
 }
