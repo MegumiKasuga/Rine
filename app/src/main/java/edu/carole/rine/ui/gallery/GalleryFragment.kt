@@ -9,7 +9,9 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import edu.carole.rine.MainActivity
 import edu.carole.rine.R
+import edu.carole.rine.data.RineData
 import edu.carole.rine.data.sqlite.DBHelper
 import edu.carole.rine.data.zero_tier.NetworkManager
 import edu.carole.rine.data.zero_tier.ServerController
@@ -25,12 +27,10 @@ class GalleryFragment : Fragment(R.layout.fragment_network) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val dbHelper = DBHelper(requireContext())
-        networkManager = NetworkManager(dbHelper)
+        networkManager = (activity as MainActivity).getNetworkManager()
         listView = view.findViewById(R.id.network_list)
         addButton = view.findViewById(R.id.add_network_button)
-        
-        adapter = NetworkAdapter(requireContext(), networkManager.getNetworks())
+        adapter = NetworkAdapter(requireContext(), networkManager)
         listView.adapter = adapter
 
         addButton.setOnClickListener {
@@ -61,18 +61,14 @@ class GalleryFragment : Fragment(R.layout.fragment_network) {
                     val port = portStr.toShort()
                     
                     // 创建内部存储目录
-                    val storageDir = File(requireContext().filesDir, "zerotier/$networkId")
+//                    val storageDir = File(requireContext().filesDir, "zerotier/$networkId")
 //                    val ts = storageDir.absolutePath
-//                    val n = ZeroTierNetwork("8bd5124fd6293707".toULong(16).toLong(), "Rine", ts, 1234)
-//                    val serverController = ServerController(n, 1000)
-                    if (!storageDir.exists()) {
-                        storageDir.mkdirs()
-                    }
+                    val n = ZeroTierNetwork("8bd5124fd6293707".toULong(16).toLong(), "Rine", 1234)
+                    val serverController = ServerController(n)
                     
                     val network = ZeroTierNetwork(
                         networkId = ulongNetworkId.toLong(),
                         nick = nick,
-                        storagePath = storageDir.absolutePath,
                         port = port
                     )
                     

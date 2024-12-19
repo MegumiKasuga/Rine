@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import edu.carole.rine.data.RineData
 import edu.carole.rine.data.zero_tier.ServerController
 import edu.carole.rine.data.zero_tier.ZeroTierNetwork
 import edu.carole.rine.ui.login.RineLoginActivity
@@ -26,13 +27,15 @@ class WelcomeActivity : AppCompatActivity() {
             insets
         }
 
-
         val thread = Thread { ->
             Thread.sleep(3000)
             val intent = Intent(this.baseContext, RineLoginActivity::class.java)
             startActivity(intent)
             finish()
         }
+
+        val data = application as RineData
+        data.networkManager
         thread.start()
     }
 }

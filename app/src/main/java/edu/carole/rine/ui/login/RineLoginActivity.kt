@@ -22,6 +22,7 @@ import edu.carole.rine.MainActivity
 import edu.carole.rine.databinding.ActivityRineLoginBinding
 
 import edu.carole.rine.R
+import edu.carole.rine.data.RineData
 import edu.carole.rine.data.sqlite.DBHelper
 import kotlin.math.log
 
@@ -36,6 +37,7 @@ class RineLoginActivity : AppCompatActivity() {
 
         binding = ActivityRineLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        val data = (application as RineData)
 
         val username = binding.username
         val password = binding.password
@@ -47,7 +49,7 @@ class RineLoginActivity : AppCompatActivity() {
         val welcomeText = binding.welcomeText
         val sp = getPreferences(MODE_PRIVATE)
 
-        loginViewModel = ViewModelProvider(this, LoginViewModelFactory(DBHelper(this)))
+        loginViewModel = ViewModelProvider(this, LoginViewModelFactory(data.db))
             .get(LoginViewModel::class.java)
 
         loginViewModel.loginFormState.observe(this@RineLoginActivity, Observer {

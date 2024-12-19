@@ -14,7 +14,7 @@ import edu.carole.rine.data.zero_tier.ZeroTierNetwork
 
 class NetworkAdapter(
     private val context: Context,
-    private var networks: List<ZeroTierNetwork>
+    private var networks: NetworkManager
 ) : BaseAdapter() {
 
     private var currentVisibleDeleteButton: Button? = null
@@ -23,11 +23,11 @@ class NetworkAdapter(
     private var currentVisibleTestButton: Button? = null
 
     override fun getCount(): Int {
-        return networks.size
+        return networks.getNetworks().size
     }
 
     override fun getItem(position: Int): Any {
-        return networks[position]
+        return networks.getNetworks()[position]
     }
 
     override fun getItemId(position: Int): Long {
@@ -53,7 +53,7 @@ class NetworkAdapter(
             holder = view.tag as ViewHolder
         }
 
-        val network = networks[position]
+        val network = networks.getNetworks()[position]
         holder.nickTextView.text = network.nick
         holder.portTextView.text = network.port.toString()
 
@@ -80,9 +80,9 @@ class NetworkAdapter(
 
         // 设置 deleteButton 的点击事件
         holder.deleteButton.setOnClickListener {
-            val networkManager = NetworkManager(DBHelper(context))
-            networkManager.removeNetwork(network)
-            updateNetworks(networkManager.getNetworks())
+//            TODO: fix remove network\
+            networks.removeNetwork(network)
+            updateNetworks(networks.getNetworks())
         }
         holder.editButton.setOnClickListener {
             //TODO: use bellow code after NetworkManager finished
@@ -90,7 +90,7 @@ class NetworkAdapter(
             Toast.makeText(context, "你惊动了Edit按钮！", Toast.LENGTH_SHORT).show()
         }
         holder.testButton.setOnClickListener {
-            val network = networks[position]
+            val network = networks.getNetworks()[position]
             testNetwork(network)
         }
         return view
@@ -153,12 +153,12 @@ class NetworkAdapter(
 //    }
 
     private fun testNetwork(network: ZeroTierNetwork) {
-        val serverController = ServerController(network, 1000)
-        serverController.retryConnect(1000)
+//        val serverController = ServerController(network, 1000)
+//        serverController.retryConnect(1000)
     }
 
     fun updateNetworks(newNetworks: List<ZeroTierNetwork>) {
-        this.networks = newNetworks
+//        this.networks = newNetworks
         notifyDataSetChanged()
     }
 

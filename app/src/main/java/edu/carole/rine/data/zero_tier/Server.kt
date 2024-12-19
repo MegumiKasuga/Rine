@@ -31,50 +31,50 @@ data class Server(val id: Long, val address: InetAddress,
         return "[Server<$id, $address, $port, $nick>]"
     }
 
-    fun getTCPSocket(controller: ServerController): ZeroTierSocket? {
-        return getTCPSocket(controller, port)
-    }
-
-    fun getTCPSocket(controller: ServerController, port: Short): ZeroTierSocket? {
-        if (!controller.readyForTransmit()) return null
+    fun getTcpSocket(port: Short): ZeroTierSocket? {
         try {
-            return ZeroTierSocket(address.hostAddress, port.toInt())
-        } catch (exception: IOException) {
-            Log.e("Failed to create socket!", exception.message.toString())
+            val socket = ZeroTierSocket(this.address.hostAddress, port.toInt())
+            return socket
+        } catch (exception: Exception) {
+            Log.e("failed to create TCP Socket", exception.message.orEmpty())
         }
         return null
     }
 
-    fun getUDPSocket(controller: ServerController): ZeroTierDatagramSocket? {
-        return getUDPSocket(controller, port)
+    fun getTcpSocket(): ZeroTierSocket? {
+        return getTcpSocket(this.port)
     }
 
-    fun getUDPSocket(controller: ServerController, port: Short): ZeroTierDatagramSocket? {
-        if (!controller.readyForTransmit()) return null
+    fun getUdpSocket(port: Short): ZeroTierDatagramSocket? {
         try {
-            return ZeroTierDatagramSocket(port.toInt(), address)
-        } catch (exception: IOException) {
-            Log.e("Failed to create udp socket!", exception.message.toString())
+            val socket = ZeroTierDatagramSocket(port.toInt(), this.address)
+            return socket
+        } catch (exception: Exception) {
+            Log.e("failed to create UDP Socket", exception.message.orEmpty())
         }
         return null
     }
 
-    fun sendUdpPacket(controller: ServerController, payload: ByteArray): Boolean {
-        return sendUdpPacket(controller, payload, port)
+    fun getUdpSocket(): ZeroTierDatagramSocket? {
+        return getUdpSocket(this.port)
     }
 
-    fun sendUdpPacket(controller: ServerController, payload: ByteArray, port: Short): Boolean {
-        val udpSocket = getUDPSocket(controller, port)
+    fun sendUdpPacket(payload: ByteArray): Boolean {
+        return sendUdpPacket(payload, port)
+    }
+
+    fun sendUdpPacket(payload: ByteArray, port: Short): Boolean {
+        val udpSocket = getUdpSocket(port)
         if (udpSocket == null) return false
         udpSocket.send(DatagramPacket(payload, payload.size))
         udpSocket.close()
         return true
     }
 
-    fun sendTcpPacket(controller: ServerController, payload: JsonElement, delay: Int, port: Short):
+    fun sendTcpPacket(payload: JsonElement, delay: Int, port: Short):
             ConnectionResult {
         val bytes = payload.toString().byteInputStream(Charsets.UTF_8)
-        val tcpSocket = getTCPSocket(controller, port)
+        val tcpSocket = getTcpSocket(port)
         // internal error
         if (tcpSocket == null) return ConnectionResult(false, -1, null)
         var counter = 0
@@ -114,9 +114,9 @@ data class Server(val id: Long, val address: InetAddress,
         return ConnectionResult(stateCode > 0, stateCode, jsonElement)
     }
 
-    fun sendTcpPacket(controller: ServerController, payload: JsonElement, delay: Int):
+    fun sendTcpPacket(payload: JsonElement, delay: Int):
             ConnectionResult {
-        return sendTcpPacket(controller, payload, delay, this.port)
+        return sendTcpPacket(payload, delay, this.port)
     }
 
     data class ConnectionResult(val success: Boolean,

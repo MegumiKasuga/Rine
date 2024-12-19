@@ -2,19 +2,16 @@ package edu.carole.rine.data.zero_tier
 
 import com.google.gson.JsonElement
 import com.zerotier.sockets.ZeroTierNode
+import java.net.InetAddress
 import java.util.UUID
 
 class ServerController {
 
     private val net: ZeroTierNetwork
-    private val node: ZeroTierNode
-    private var initResult: ZeroTierNetwork.NetworkInitResult
     private val servers: HashMap<Long, Server>
 
-    constructor(net: ZeroTierNetwork, delay: Long) {
+    constructor(net: ZeroTierNetwork) {
         this.net = net
-        initResult = net.getNode(delay)
-        node = initResult.getNode()
         servers = HashMap()
     }
 
@@ -30,36 +27,16 @@ class ServerController {
         return servers.getOrDefault(id, null)
     }
 
-    fun sendTcpPacket(id: Long, json: JsonElement, delay: Int): Server.ConnectionResult {
-        val server = getServer(id)
-        if (server == null) return Server.ConnectionResult(false, -3, null)
-        return server.sendTcpPacket(this, json, delay)
+    fun getServer(address: InetAddress, port: Short): Server? {
+        for (i in servers.values) {
+            if (i.address == address && port == i.port)
+                return i
+        }
+        return null
     }
 
-    fun sendUdpPacket(id: Long, payload: ByteArray): Boolean {
-        val server = getServer(id)
-        if (server == null) return false
-        return server.sendUdpPacket(this, payload)
-    }
-
-    fun retryConnect(delay: Long) {
-        initResult = net.joinNetwork(node, delay)
-    }
-
-    fun readyForTransmit(): Boolean {
-        return initResult.getState() == ZeroTierNetwork.NetworkInitState.SUCCESS
-    }
-
-    fun stopNode() {
-        node.stop()
-    }
-
-//    fun leaveNetwork() {
-//        node
-//    }
-
-    fun getNode(): ZeroTierNode {
-        return node
+    fun contains(server: Server): Boolean {
+        return getServer(server.address, server.port) != null
     }
 
     fun getNet(): ZeroTierNetwork {

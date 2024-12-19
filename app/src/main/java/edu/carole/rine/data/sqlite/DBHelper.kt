@@ -25,7 +25,6 @@ class DBHelper(val context: Context) :
     val createNetworkDb = "CREATE TABLE rine_network(" +
             "id TEXT PRIMARY KEY, " +
             "nick TEXT, " +
-            "storage TEXT, " +
             "port SHORT)"
 
     val createChatDb = "CREATE TABLE rine_chat(" +
@@ -194,7 +193,6 @@ class DBHelper(val context: Context) :
                     ZeroTierNetwork(
                         cursor.getString(idColumn).toULong(16).toLong(),
                         cursor.getString(nickColumn),
-                        cursor.getString(storageColumn),
                         cursor.getShort(portColumn)
                     )
                 )
@@ -209,7 +207,6 @@ class DBHelper(val context: Context) :
         val content = ContentValues().apply {
             put("id", network.networkId.toULong().toString(16))
             put("nick", network.nick)
-            put("storage", network.storagePath)
             put("port", network.port)
         }
         getDataBase().insert(networkTable, null, content)
@@ -222,7 +219,6 @@ class DBHelper(val context: Context) :
         val content = ContentValues().apply {
             put("id", newNetwork.networkId)
             put("nick", newNetwork.nick)
-            put("storage", newNetwork.storagePath)
             put("port", newNetwork.port)
         }
         getDataBase().update(
