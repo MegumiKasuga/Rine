@@ -35,13 +35,13 @@ class ChatActivity : AppCompatActivity() {
         val detailBtn = binding.detailButton
         val listView = binding.chatList
 
-        val msgList = ArrayList<ChatMessage>()
+        val msgList = ArrayList<Msg>()
         val user1 = LoggedInUser(UUID.randomUUID(), "张三")
         val user2 = LoggedInUser(UUID.randomUUID(), "李四")
         val user3 = LoggedInUser(UUID.randomUUID(), "王五")
-        msgList.add(ChatMessage(user1, "24岁，是学生"))
-        msgList.add(ChatMessage(user2, "鸭蛋摸鸭蛋，牡蛎摸牡蛎"))
-        msgList.add(ChatMessage(user3, "1145141919810"))
+        msgList.add(Msg(user1, "24岁，是学生"))
+        msgList.add(Msg(user2, "鸭蛋摸鸭蛋，牡蛎摸牡蛎"))
+        msgList.add(Msg(user3, "1145141919810"))
         val adapter = MsgAdapter(this, R.layout.msg_item, msgList)
         listView.divider = null
         listView.adapter = adapter
