@@ -25,6 +25,7 @@ class NetworkManager {
         node.initFromStorage(storagePath)
         if (port != null)
             node.initSetPort(port)
+        node.start()
         servers = HashMap<ZeroTierNetwork, ServerController>()
     }
 
