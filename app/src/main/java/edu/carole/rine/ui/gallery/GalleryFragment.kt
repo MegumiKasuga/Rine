@@ -63,8 +63,8 @@ class GalleryFragment : Fragment(R.layout.fragment_network) {
                     // 创建内部存储目录
 //                    val storageDir = File(requireContext().filesDir, "zerotier/$networkId")
 //                    val ts = storageDir.absolutePath
-                    val n = ZeroTierNetwork("8bd5124fd6293707".toULong(16).toLong(), "Rine", 1234)
-                    val serverController = ServerController(n)
+//                    val n = ZeroTierNetwork("8bd5124fd6293707".toULong(16).toLong(), "Rine", 1234)
+//                    val serverController = ServerController(n)
                     
                     val network = ZeroTierNetwork(
                         networkId = ulongNetworkId.toLong(),

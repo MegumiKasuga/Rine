@@ -78,17 +78,22 @@ class NetworkAdapter(
             holder.setButtonsVisibility(shouldShowButtons)
         }
 
-        // 设置 deleteButton 的点击事件
         holder.deleteButton.setOnClickListener {
-//            TODO: fix remove network\
-            networks.removeNetwork(network)
-            updateNetworks(networks.getNetworks())
+            AlertDialog.Builder(context)
+                .setTitle("确认删除")
+                .setMessage("确定要删除网络 ${network.nick} 吗？")
+                .setPositiveButton("确定") { _, _ ->
+                    networks.removeNetwork(network)
+                    notifyDataSetChanged()
+                }
+                .setNegativeButton("取消", null)
+                .show()
         }
+
         holder.editButton.setOnClickListener {
-            //TODO: use bellow code after NetworkManager finished
-//            showEditDialog(network)
-            Toast.makeText(context, "你惊动了Edit按钮！", Toast.LENGTH_SHORT).show()
+            showEditDialog(network)
         }
+
         holder.testButton.setOnClickListener {
             val network = networks.getNetworks()[position]
             testNetwork(network)
@@ -96,65 +101,56 @@ class NetworkAdapter(
         return view
     }
 
+    private fun showEditDialog(network: ZeroTierNetwork) {
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_network_input, null)
 
-//    private fun showEditDialog(network: ZeroTierNetwork) {
-    // TODO: use bellow code after NetworkManager finished
+        val networkIdInput = dialogView.findViewById<EditText>(R.id.network_id_input)
+        val nickInput = dialogView.findViewById<EditText>(R.id.nick_input)
+        val portInput = dialogView.findViewById<EditText>(R.id.port_input)
+        val positiveButton = dialogView.findViewById<Button>(R.id.positive_button)
+        val negativeButton = dialogView.findViewById<Button>(R.id.negative_button)
 
-//        // 编辑网络信息
-//        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_network_input, null)
-//
-//        val networkIdInput = dialogView.findViewById<EditText>(R.id.network_id_input)
-//        val nickInput = dialogView.findViewById<EditText>(R.id.nick_input)
-//        val portInput = dialogView.findViewById<EditText>(R.id.port_input)
-//        val positiveButton = dialogView.findViewById<Button>(R.id.positive_button)
-//        val negativeButton = dialogView.findViewById<Button>(R.id.negative_button)
-//
-//
-//        networkIdInput.setText(network.networkId.toString(16))
-//        networkIdInput.isEnabled = false
-//        nickInput.setText(network.nick)
-//        portInput.setText(network.port.toString())
-//
-//        val dialog = AlertDialog.Builder(context)
-//            .setView(dialogView)
-//            .create()
-//
-//        positiveButton.setOnClickListener {
-//            val nick = nickInput.text.toString()
-//            val portStr = portInput.text.toString()
-//
-//            if (nick.isNotEmpty() && portStr.isNotEmpty()) {
-//                try {
-//                    val port = portStr.toShort()
-//                    val updatedNetwork = network.copy(
-//                        nick = nick,
-//                        port = port
-//                    )
-//
-//                    val networkManager = NetworkManager(DBHelper(context))
-//                    networkManager.updateNetwork(updatedNetwork)
-//                    updateNetworks(networkManager.getNetworks())
-//
-//                    dialog.dismiss()
-//                } catch (e: NumberFormatException) {
-//                    Toast.makeText(context, "wrong port", Toast.LENGTH_SHORT).show()
-//                }
-//            } else {
-//                Toast.makeText(context, "please fill all blank", Toast.LENGTH_SHORT).show()
-//            }
-//        }
-//
-//        negativeButton.setOnClickListener {
-//            dialog.dismiss()
-//        }
-//
-//        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-//        dialog.show()
-//    }
+        networkIdInput.setText(network.networkId.toString(16))
+        networkIdInput.isEnabled = false
+        nickInput.setText(network.nick)
+        portInput.setText(network.port.toString())
+
+        val dialog = AlertDialog.Builder(context)
+            .setView(dialogView)
+            .create()
+
+        positiveButton.setOnClickListener {
+            val nick = nickInput.text.toString()
+            val portStr = portInput.text.toString()
+
+            if (nick.isNotEmpty() && portStr.isNotEmpty()) {
+                try {
+                    val port = portStr.toShort()
+                    val updatedNetwork = network.copy(
+                        nick = nick,
+                        port = port
+                    )
+
+                    networks.updateNetwork(updatedNetwork)
+                    notifyDataSetChanged()
+                    dialog.dismiss()
+                } catch (e: NumberFormatException) {
+                    Toast.makeText(context, "端口号不正确", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                Toast.makeText(context, "请填写完整的信息", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        negativeButton.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.show()
+    }
 
     private fun testNetwork(network: ZeroTierNetwork) {
-//        val serverController = ServerController(network, 1000)
-//        serverController.retryConnect(1000)
         networks.isJoined(network)
     }
 

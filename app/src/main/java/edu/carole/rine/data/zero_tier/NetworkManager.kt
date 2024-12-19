@@ -18,9 +18,10 @@ class NetworkManager {
     val db: DBHelper
     val node: ZeroTierNode
     val servers: HashMap<ZeroTierNetwork, ServerController>
-
+    val storagePath: String
     constructor(db: DBHelper, storagePath: String, port: Short?) {
         this.db = db
+        this.storagePath = storagePath
         this.node = ZeroTierNode()
         node.initFromStorage(storagePath)
         if (port != null)
@@ -67,33 +68,35 @@ class NetworkManager {
         }
     }
 
-    private fun deleteDirectory(dir: File): Boolean {
-        // del function
-        if (dir.isDirectory) {
-            val children = dir.listFiles()
-            if (children != null) {
-                for (child in children) {
-                    val success = deleteDirectory(child)
-                    if (!success) {
-                        return false
-                    }
-                }
-            }
+    fun deleteNetworkFiles(networkId: Long) {
+        val networkFile = File(storagePath, "networks.d/${networkId.toULong().toString(16)}.conf")
+        if (networkFile.exists()) {
+            networkFile.delete()
         }
-        return dir.delete()
     }
-
-
 
     fun removeNetwork(network: ZeroTierNetwork) {
         try {
+            deleteNetworkFiles(network.networkId)
             db.removeNetwork(network)
             node.leave(network.networkId)
-            Toast.makeText(db.context, "id: ${network.networkId} has been removed", Toast.LENGTH_SHORT).show()
+            servers.remove(network)
+            Toast.makeText(db.context, "id: ${network.networkId.toULong().toString(16)} 已被移除", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
-            Toast.makeText(db.context, "There's something wrong...", Toast.LENGTH_SHORT).show()
+            Log.e("NetworkManager", "Error removing network", e)
+            Toast.makeText(db.context, "发生错误: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
+
+    fun updateNetwork(updatedNetwork: ZeroTierNetwork) {
+        db.updateNetwork(updatedNetwork)
+        val networksList = getNetworks().toMutableList()
+        val index = networksList.indexOfFirst { it.networkId == updatedNetwork.networkId }
+        if (index != -1) {
+            networksList[index] = updatedNetwork
+        }
+    }
+
 }
 
 
