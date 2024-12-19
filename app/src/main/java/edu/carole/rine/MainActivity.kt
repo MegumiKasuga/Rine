@@ -22,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.doOnAttach
 import edu.carole.rine.data.RineData
 import edu.carole.rine.data.model.Chat
+import edu.carole.rine.data.sqlite.DBHelper
 import edu.carole.rine.data.zero_tier.NetworkManager
 import edu.carole.rine.databinding.ActivityMainBinding
 import edu.carole.rine.ui.chat.ChatActivity
@@ -33,6 +34,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     private lateinit var networkManager: NetworkManager
+    private lateinit var db: DBHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +42,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         networkManager = (application as RineData).networkManager
+        db = (application as RineData).db
 
         setSupportActionBar(binding.appBarMain.toolbar)
 
@@ -81,5 +84,9 @@ class MainActivity : AppCompatActivity() {
 
     fun getNetworkManager(): NetworkManager {
         return networkManager
+    }
+
+    fun getDb(): DBHelper {
+        return db
     }
 }

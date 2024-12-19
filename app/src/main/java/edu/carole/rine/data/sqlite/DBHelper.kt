@@ -35,7 +35,7 @@ class DBHelper(val context: Context) :
 
     val createServerDb = "CREATE TABLE rine_server(" +
             "id LONG PRIMARY KEY, " +
-            "net LONG, " +
+            "net TEXT, " +
             "address TEXT, " +
             "port INT, " +
             "nick TEXT)"
@@ -241,7 +241,7 @@ class DBHelper(val context: Context) :
     fun getAllChats(): List<Chat> {
         val db = getDataBase()
         val cursor =
-            db.query(chatTable, arrayOf("id", "name", "server"), null, null, null, null, null, null)
+            db.query(chatTable, arrayOf("id", "name", "server", "is_group"), null, null, null, null, null, null)
         val result = ArrayList<Chat>()
         if (cursor.moveToFirst()) {
             do {
@@ -326,7 +326,7 @@ class DBHelper(val context: Context) :
                     InetAddress.getByName(cursor.getString(addrColumn)),
                     cursor.getInt(portColumn).toShort(),
                     cursor.getString(nickColumn)),
-                    cursor.getLong(netColumn))
+                    cursor.getString(netColumn).toULong(16).toLong())
             } while (cursor.moveToNext())
         }
         cursor.close()
@@ -340,7 +340,7 @@ class DBHelper(val context: Context) :
             put("address", server.address.hostAddress)
             put("port", server.port.toInt())
             put("nick", server.nick)
-            put("net", net)
+            put("net", net.toULong().toString(16))
         }
         getDataBase().insert(serverTable, null, content)
         return true

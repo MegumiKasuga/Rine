@@ -9,11 +9,14 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.Button
 import android.widget.ListView
+import androidx.appcompat.widget.AppCompatImageButton
 import androidx.core.view.doOnAttach
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import edu.carole.rine.MainActivity
 import edu.carole.rine.R
 import edu.carole.rine.data.model.Chat
+import edu.carole.rine.data.sqlite.DBHelper
 import edu.carole.rine.databinding.FragmentSearchchatBinding
 import edu.carole.rine.ui.chat.ChatActivity
 import edu.carole.rine.ui.chat.ChatAdapter
@@ -42,20 +45,23 @@ class SearchFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-//        if (context == null) return
-//        val chats = ArrayList<Chat>()
-//        val chatTitleList = view.findViewById<ListView>(R.id.search_chat_list)
-//        val dummyChat = Chat(114514L, "dummy chat", 0L, false)
-//        chatTitleList.doOnAttach {
-//            chats.add(dummyChat)
-//        }
-//        chatTitleList.divider = null
-//        chatTitleList.adapter = ChatAdapter(context as Context, R.layout.chat_item, chats)
-//        //绑定添加chat的按钮
-//        val addButton: Button = view.findViewById(R.id.search_input)
-//        addButton.setOnClickListener{
-//            // 添加新的chat操作
-//        }
+        if (context == null) return
+        val dbHelper = DBHelper(view.context)
+        //绑定搜索按钮
+        val addButton: Button = view.findViewById(R.id.search_button)
+        val chats = dbHelper.getAllChats() as ArrayList<Chat>
+        val searchChatList = view.findViewById<ListView>(R.id.search_chat_list)
+        val dummyChat = Chat(114515L, "dummy chat", 0L, false)
+
+
+        addButton.setOnClickListener{
+            // 添加新的chat操作
+            //chats.add(dummyChat)
+            searchChatList.divider = null
+            searchChatList.adapter = SearchChatAdapter(context as Context, R.layout.search_chat_item, chats, dbHelper)
+        }
+
+
     }
 
     override fun onDestroyView() {

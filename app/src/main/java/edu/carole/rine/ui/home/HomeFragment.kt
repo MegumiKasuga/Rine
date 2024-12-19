@@ -14,11 +14,16 @@ import androidx.core.view.doOnAttach
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import edu.carole.rine.MainActivity
 import edu.carole.rine.R
+import edu.carole.rine.data.RineData
 import edu.carole.rine.data.model.Chat
+import edu.carole.rine.data.sqlite.DBHelper
+import edu.carole.rine.data.zero_tier.NetworkManager
 import edu.carole.rine.databinding.FragmentHomeBinding
 import edu.carole.rine.ui.chat.ChatActivity
 import edu.carole.rine.ui.chat.ChatAdapter
+import edu.carole.rine.ui.gallery.NetworkAdapter
 
 class HomeFragment : Fragment() {
 
@@ -49,14 +54,13 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         if (context == null) return
-        val chats = ArrayList<Chat>()
+        val dbHelper = DBHelper(view.context)
         val chatTitleList = view.findViewById<ListView>(R.id.chat_title_list)
-        val dummyChat = Chat(114514L, "dummy chat", 0L, false)
-        chatTitleList.doOnAttach {
-            chats.add(dummyChat)
-        }
+        val chats = dbHelper.getAllChats() as ArrayList<Chat>
         chatTitleList.divider = null
         chatTitleList.adapter = ChatAdapter(context as Context, R.layout.chat_item, chats)
+
+
         //绑定添加chat的按钮
         val addButton: AppCompatImageButton = view.findViewById(R.id.add_chat_button)
         addButton.setOnClickListener{
@@ -70,4 +74,5 @@ class HomeFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
 }
