@@ -34,7 +34,6 @@ class WelcomeActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
         val thread = Thread { ->
             Thread.sleep(3000)
             val intent = Intent(this.baseContext, RineLoginActivity::class.java)

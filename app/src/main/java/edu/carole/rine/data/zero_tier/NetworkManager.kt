@@ -87,11 +87,6 @@ class NetworkManager {
     fun isJoined(network: ZeroTierNetwork): Boolean {
         if (!servers.contains(network)) return false
         return node.isNetworkTransportReady(network.networkId)
-//        val value = getNetworkAndServerController(network.networkId)?.value
-//        val server = Server(0, InetAddress.getByName("192.168.191.38"), 9998, "")
-//        value?.addServer(server)
-//        server.testServer(this, 60000)
-//        return flag
     }
 
     fun addServer(server: Server, network: ZeroTierNetwork): Boolean {

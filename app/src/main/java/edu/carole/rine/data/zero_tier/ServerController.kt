@@ -37,6 +37,10 @@ class ServerController {
         return null
     }
 
+    fun getServers(): Set<Server> {
+        return servers.keys
+    }
+
     fun getServer(address: InetAddress, port: Short): Server? {
         for (i in servers) {
             if (i.key.address == address && i.key.port == port)
