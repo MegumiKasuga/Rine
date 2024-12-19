@@ -155,6 +155,7 @@ class NetworkAdapter(
     private fun testNetwork(network: ZeroTierNetwork) {
 //        val serverController = ServerController(network, 1000)
 //        serverController.retryConnect(1000)
+        networks.isJoined(network)
     }
 
     fun updateNetworks(newNetworks: List<ZeroTierNetwork>) {
