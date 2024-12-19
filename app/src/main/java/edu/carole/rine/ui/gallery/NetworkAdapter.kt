@@ -68,6 +68,10 @@ class NetworkAdapter(
                 deleteButton.visibility = if (showButtons) View.VISIBLE else View.GONE
                 editButton.visibility = if (showButtons) View.VISIBLE else View.GONE
                 testButton.visibility = if (showButtons) View.VISIBLE else View.GONE
+                
+                // 控制昵称和端口的显示
+                nickTextView.visibility = if (showButtons) View.GONE else View.VISIBLE
+                portTextView.visibility = if (showButtons) View.GONE else View.VISIBLE
 
                 // 根据连接状态决定显示哪个文本
                 val isConnected = networks.isJoined(networks.getNetworks()[position])

@@ -1,5 +1,6 @@
 package edu.carole.rine
 
+import android.annotation.SuppressLint
 import android.app.Fragment
 import android.content.Context
 import android.content.Intent
@@ -112,6 +113,7 @@ class MainActivity : AppCompatActivity() {
         return db
     }
 
+    @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
         if (binding.drawerLayout.isDrawerOpen(binding.navigation)) {
             binding.drawerLayout.closeDrawer(binding.navigation)
