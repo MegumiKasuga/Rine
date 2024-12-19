@@ -17,6 +17,7 @@ class NetworkAdapter(
 
     private var currentVisibleDeleteButton: Button? = null
     private var currentVisibleDisconnectTextView: TextView? = null
+    private var currentVisibleEditButton: Button? = null
 
     override fun getCount(): Int {
         return networks.size
@@ -41,6 +42,7 @@ class NetworkAdapter(
             holder.portTextView = view.findViewById(R.id.port)
             holder.disconnectTextView = view.findViewById(R.id.disconnect)
             holder.deleteButton = view.findViewById(R.id.delete_button)
+            holder.editButton = view.findViewById(R.id.edit_button)
             view.tag = holder
         } else {
             view = convertView
@@ -52,17 +54,22 @@ class NetworkAdapter(
         holder.portTextView.text = network.port.toString()
 
         view.setOnClickListener {
-            if (holder.deleteButton.visibility == View.VISIBLE) {
+            if (holder.deleteButton.visibility == View.VISIBLE&&holder.disconnectTextView.visibility == View.VISIBLE) {
                 holder.deleteButton.visibility = View.GONE
+                holder.editButton.visibility = View.GONE
                 holder.disconnectTextView.visibility = View.VISIBLE
                 currentVisibleDeleteButton = null
+                currentVisibleEditButton = null
                 currentVisibleDisconnectTextView = null
             } else {
                 currentVisibleDeleteButton?.visibility = View.GONE
+                currentVisibleEditButton?.visibility = View.GONE
                 currentVisibleDisconnectTextView?.visibility = View.VISIBLE
                 holder.deleteButton.visibility = View.VISIBLE
+                holder.editButton.visibility = View.VISIBLE
                 holder.disconnectTextView.visibility = View.GONE
                 currentVisibleDeleteButton = holder.deleteButton
+                currentVisibleEditButton = holder.editButton
                 currentVisibleDisconnectTextView = holder.disconnectTextView
             }
         }
@@ -73,7 +80,9 @@ class NetworkAdapter(
             networkManager.removeNetwork(network)
             updateNetworks(networkManager.getNetworks())
         }
-
+        holder.editButton.setOnClickListener {
+            Toast.makeText(context, "你惊动了Edit按钮！", Toast.LENGTH_SHORT).show()
+        }
         return view
     }
     fun updateNetworks(newNetworks: List<ZeroTierNetwork>) {
@@ -85,5 +94,6 @@ class NetworkAdapter(
         lateinit var portTextView: TextView
         lateinit var disconnectTextView: TextView
         lateinit var deleteButton: Button
+        lateinit var editButton: Button
     }
 }

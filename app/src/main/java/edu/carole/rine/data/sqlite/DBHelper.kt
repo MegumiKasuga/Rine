@@ -1,7 +1,5 @@
 package edu.carole.rine.data.sqlite
 
-import android.R
-import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
@@ -9,11 +7,13 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
 import edu.carole.rine.data.model.Chat
 import edu.carole.rine.data.model.LoggedInUser
+import edu.carole.rine.data.zero_tier.Server
 import edu.carole.rine.data.zero_tier.ZeroTierNetwork
+import java.net.InetAddress
 import java.sql.SQLException
 import java.util.UUID
 
-class DBHelper(val context: Context):
+class DBHelper(val context: Context) :
     SQLiteOpenHelper(context, "rine.db", null, 1) {
 
     val createUserDb = "CREATE TABLE rine_user(" +
@@ -23,7 +23,7 @@ class DBHelper(val context: Context):
             "auto_login BOOLEAN)"
 
     val createNetworkDb = "CREATE TABLE rine_network(" +
-            "id LONG PRIMARY KEY, " +
+            "id TEXT PRIMARY KEY, " +
             "nick TEXT, " +
             "storage TEXT, " +
             "port SHORT)"
@@ -34,11 +34,19 @@ class DBHelper(val context: Context):
             "server LONG, " +
             "is_group BOOLEAN)"
 
+    val createServerDb = "CREATE TABLE rine_server(" +
+            "id LONG PRIMARY KEY, " +
+            "net LONG, " +
+            "address TEXT, " +
+            "port INT, " +
+            "nick TEXT)"
+
     // val INVALID_UUID = UUID.fromString("0-0-0-0")
 
     val userTable = "rine_user"
     val networkTable = "rine_network"
     val chatTable = "rine_chat"
+    val serverTable = "rine_server"
 
     override fun onCreate(db: SQLiteDatabase?) {
         // TODO("Not yet implemented")
@@ -46,6 +54,7 @@ class DBHelper(val context: Context):
             db?.execSQL(createUserDb)
             db?.execSQL(createNetworkDb)
             db?.execSQL(createChatDb)
+            db?.execSQL(createServerDb)
         } catch (exception: SQLException) {
             Log.e("db", exception.toString())
         }
@@ -64,7 +73,8 @@ class DBHelper(val context: Context):
     }
 
     fun couldUserLogin(name: String, pass: String): Boolean {
-        val cursor = getDataBase().query(userTable, arrayOf("name", "pass"), null, null, null, null, null)
+        val cursor =
+            getDataBase().query(userTable, arrayOf("name", "pass"), null, null, null, null, null)
         if (cursor.moveToFirst()) {
             do {
                 val nameColumn = cursor.getColumnIndex("name")
@@ -81,7 +91,8 @@ class DBHelper(val context: Context):
     }
 
     fun userAlreadyExists(name: String): Boolean {
-        val cursor = getDataBase().query(userTable, arrayOf("name"), null, null, null, null, null, null)
+        val cursor =
+            getDataBase().query(userTable, arrayOf("name"), null, null, null, null, null, null)
         if (cursor.moveToFirst()) {
             do {
                 val nameColumn = cursor.getColumnIndex("name")
@@ -95,7 +106,8 @@ class DBHelper(val context: Context):
     }
 
     fun getAllCachedUsers(): List<String> {
-        val cursor = getDataBase().query(userTable, arrayOf("name"), null, null, null, null, null, null)
+        val cursor =
+            getDataBase().query(userTable, arrayOf("name"), null, null, null, null, null, null)
         val result = ArrayList<String>()
         if (cursor.moveToFirst()) {
             do {
@@ -161,7 +173,15 @@ class DBHelper(val context: Context):
 
     fun getAllNetworks(): List<ZeroTierNetwork> {
         val db = getDataBase()
-        val cursor = db.query(networkTable, arrayOf("id", "nick", "storage", "port"), null, null, null, null, null)
+        val cursor = db.query(
+            networkTable,
+            arrayOf("id", "nick", "storage", "port"),
+            null,
+            null,
+            null,
+            null,
+            null
+        )
         val result = ArrayList<ZeroTierNetwork>()
         if (cursor.moveToFirst()) {
             do {
@@ -170,11 +190,14 @@ class DBHelper(val context: Context):
                 val portColumn = cursor.getColumnIndex("port")
                 val nickColumn = cursor.getColumnIndex("nick")
                 if (idColumn < 0 || storageColumn < 0 || portColumn < 0) return result
-                result.add(ZeroTierNetwork(cursor.getLong(idColumn),
-                    cursor.getString(nickColumn),
-                    cursor.getString(storageColumn),
-                    cursor.getShort(portColumn)
-                ))
+                result.add(
+                    ZeroTierNetwork(
+                        cursor.getString(idColumn).toULong(16).toLong(),
+                        cursor.getString(nickColumn),
+                        cursor.getString(storageColumn),
+                        cursor.getShort(portColumn)
+                    )
+                )
             } while (cursor.moveToNext())
         }
         cursor.close()
@@ -184,7 +207,7 @@ class DBHelper(val context: Context):
     fun addNetwork(network: ZeroTierNetwork): Boolean {
         if (getAllNetworks().contains(network)) return false
         val content = ContentValues().apply {
-            put("id", network.networkId)
+            put("id", network.networkId.toULong().toString(16))
             put("nick", network.nick)
             put("storage", network.storagePath)
             put("port", network.port)
@@ -202,20 +225,27 @@ class DBHelper(val context: Context):
             put("storage", newNetwork.storagePath)
             put("port", newNetwork.port)
         }
-        getDataBase().update(networkTable, content, "id=? AND port=?",
-            arrayOf(network.networkId.toString(), network.port.toString()))
+        getDataBase().update(
+            networkTable, content, "id=? AND port=?",
+            arrayOf(network.networkId.toString(), network.port.toString())
+        )
         return true
     }
 
     fun removeNetwork(network: ZeroTierNetwork) {
-        val id = network.networkId
+        val id = network.networkId.toULong().toString(16)
         val port = network.port
-        getDataBase().delete(networkTable, "id=? AND port=?", arrayOf(id.toString(), port.toString()))
+        getDataBase().delete(
+            networkTable,
+            "id=? AND port=?",
+            arrayOf(id.toString(), port.toString())
+        )
     }
 
     fun getAllChats(): List<Chat> {
         val db = getDataBase()
-        val cursor = db.query(chatTable, arrayOf("id", "name", "server"), null, null, null, null, null, null)
+        val cursor =
+            db.query(chatTable, arrayOf("id", "name", "server"), null, null, null, null, null, null)
         val result = ArrayList<Chat>()
         if (cursor.moveToFirst()) {
             do {
@@ -226,11 +256,13 @@ class DBHelper(val context: Context):
                 if (idColumn < 0 || nameColumn < 0 || serverColumn < 0 || isGroupColumn < 0)
                     return result
                 result.add(
-                    Chat(cursor.getLong(idColumn),
+                    Chat(
+                        cursor.getLong(idColumn),
                         cursor.getString(nameColumn),
                         cursor.getLong(serverColumn),
                         cursor.getInt(isGroupColumn) == 1
-                    ))
+                    )
+                )
             } while (cursor.moveToNext())
         }
         cursor.close()
@@ -259,7 +291,8 @@ class DBHelper(val context: Context):
 
     fun getAutoLogin(): LoggedInUser? {
         val db = getDataBase()
-        val cursor = db.query(userTable, arrayOf("id", "name", "auto_login"), null, null, null, null, null)
+        val cursor =
+            db.query(userTable, arrayOf("id", "name", "auto_login"), null, null, null, null, null)
         if (cursor.moveToFirst()) {
             do {
                 val autoLoginColumn = cursor.getColumnIndex("auto_login")
@@ -267,12 +300,58 @@ class DBHelper(val context: Context):
                 val nameColumn = cursor.getColumnIndex("name")
                 if (autoLoginColumn < 0 || idColumn < 0 || nameColumn < 0) return null
                 if (cursor.getInt(autoLoginColumn) != 0) {
-                    return LoggedInUser(UUID.fromString(cursor.getString(idColumn)), cursor.getString(nameColumn))
+                    return LoggedInUser(
+                        UUID.fromString(cursor.getString(idColumn)),
+                        cursor.getString(nameColumn)
+                    )
                 }
             } while (cursor.moveToNext())
         }
         cursor.close()
         return null
+    }
+
+    fun getAllServers(): Map<Server, Long> {
+        val db = getDataBase()
+        val cursor = db.query(serverTable, arrayOf("id", "net", "address", "port", "nick"),
+            null, null, null, null, null)
+        val result = HashMap<Server, Long>()
+        if (cursor.moveToFirst()) {
+            do {
+                val idColumn = cursor.getColumnIndex("id")
+                val netColumn = cursor.getColumnIndex("net")
+                val addrColumn = cursor.getColumnIndex("address")
+                val portColumn = cursor.getColumnIndex("port")
+                val nickColumn = cursor.getColumnIndex("nick")
+                if (idColumn < 0 || netColumn < 0 || addrColumn < 0 || portColumn < 0 || nickColumn < 0)
+                    return result
+                result.put(
+                    Server(cursor.getLong(idColumn),
+                    InetAddress.getByName(cursor.getString(addrColumn)),
+                    cursor.getInt(portColumn).toShort(),
+                    cursor.getString(nickColumn)),
+                    cursor.getLong(netColumn))
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return result
+    }
+
+    fun addServer(server: Server, net: Long): Boolean {
+        if (getAllServers().contains(server)) return false
+        val content = ContentValues().apply {
+            put("id", server.id)
+            put("address", server.address.hostAddress)
+            put("port", server.port.toInt())
+            put("nick", server.nick)
+            put("net", net)
+        }
+        getDataBase().insert(serverTable, null, content)
+        return true
+    }
+
+    fun removeServer(id: Long) {
+        getDataBase().delete(serverTable, "id=?", arrayOf(id.toString()))
     }
 }
 
