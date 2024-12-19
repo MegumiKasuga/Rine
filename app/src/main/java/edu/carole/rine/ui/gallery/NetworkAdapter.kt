@@ -54,7 +54,7 @@ class NetworkAdapter(
         holder.portTextView.text = network.port.toString()
 
         view.setOnClickListener {
-            if (holder.deleteButton.visibility == View.VISIBLE&&holder.disconnectTextView.visibility == View.VISIBLE) {
+            if (holder.deleteButton.visibility == View.VISIBLE) {
                 holder.deleteButton.visibility = View.GONE
                 holder.editButton.visibility = View.GONE
                 holder.disconnectTextView.visibility = View.VISIBLE
