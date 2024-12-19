@@ -8,6 +8,7 @@ import android.widget.*
 import edu.carole.rine.R
 import edu.carole.rine.data.sqlite.DBHelper
 import edu.carole.rine.data.zero_tier.NetworkManager
+import edu.carole.rine.data.zero_tier.ServerController
 import edu.carole.rine.data.zero_tier.ZeroTierNetwork
 
 class NetworkAdapter(
@@ -18,6 +19,7 @@ class NetworkAdapter(
     private var currentVisibleDeleteButton: Button? = null
     private var currentVisibleDisconnectTextView: TextView? = null
     private var currentVisibleEditButton: Button? = null
+    private var currentVisibleTestButton: Button? = null
 
     override fun getCount(): Int {
         return networks.size
@@ -43,6 +45,7 @@ class NetworkAdapter(
             holder.disconnectTextView = view.findViewById(R.id.disconnect)
             holder.deleteButton = view.findViewById(R.id.delete_button)
             holder.editButton = view.findViewById(R.id.edit_button)
+            holder.testButton = view.findViewById(R.id.test_button)
             view.tag = holder
         } else {
             view = convertView
@@ -57,19 +60,24 @@ class NetworkAdapter(
             if (holder.deleteButton.visibility == View.VISIBLE) {
                 holder.deleteButton.visibility = View.GONE
                 holder.editButton.visibility = View.GONE
+                holder.testButton.visibility = View.GONE
                 holder.disconnectTextView.visibility = View.VISIBLE
                 currentVisibleDeleteButton = null
                 currentVisibleEditButton = null
+                currentVisibleTestButton = null
                 currentVisibleDisconnectTextView = null
             } else {
                 currentVisibleDeleteButton?.visibility = View.GONE
                 currentVisibleEditButton?.visibility = View.GONE
+                currentVisibleTestButton?.visibility = View.GONE
                 currentVisibleDisconnectTextView?.visibility = View.VISIBLE
                 holder.deleteButton.visibility = View.VISIBLE
                 holder.editButton.visibility = View.VISIBLE
+                holder.testButton.visibility = View.VISIBLE
                 holder.disconnectTextView.visibility = View.GONE
                 currentVisibleDeleteButton = holder.deleteButton
                 currentVisibleEditButton = holder.editButton
+                currentVisibleTestButton = holder.testButton
                 currentVisibleDisconnectTextView = holder.disconnectTextView
             }
         }
@@ -83,7 +91,16 @@ class NetworkAdapter(
         holder.editButton.setOnClickListener {
             Toast.makeText(context, "你惊动了Edit按钮！", Toast.LENGTH_SHORT).show()
         }
+        holder.testButton.setOnClickListener {
+            val network = networks[position]
+            testNetwork(network)
+        }
         return view
+    }
+
+    private fun testNetwork(network: ZeroTierNetwork) {
+            val serverController = ServerController(network, 1000)
+            serverController.retryConnect(1000)
     }
     fun updateNetworks(newNetworks: List<ZeroTierNetwork>) {
         this.networks = newNetworks
@@ -95,5 +112,6 @@ class NetworkAdapter(
         lateinit var disconnectTextView: TextView
         lateinit var deleteButton: Button
         lateinit var editButton: Button
+        lateinit var testButton: Button
     }
 }
