@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
 import edu.carole.rine.data.model.Chat
+import edu.carole.rine.data.model.ChatMessage
 import edu.carole.rine.data.model.LoggedInUser
 import edu.carole.rine.data.zero_tier.Server
 import edu.carole.rine.data.zero_tier.ZeroTierNetwork

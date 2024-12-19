@@ -5,6 +5,7 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import edu.carole.rine.R
 import edu.carole.rine.data.RineData
+import edu.carole.rine.data.model.ChatMessage
 import edu.carole.rine.data.model.LoggedInUser
 import edu.carole.rine.data.model.Msg
 import edu.carole.rine.data.sqlite.DBHelper
