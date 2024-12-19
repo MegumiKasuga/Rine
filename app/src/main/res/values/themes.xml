@@ -10,14 +10,15 @@
         <item name="colorSecondaryVariant">@color/teal_700</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
-        <item name="android:windowTranslucentStatus">false</item>
-        <item name="android:windowTranslucentNavigation">true</item>
-        <item name="android:statusBarColor" tools:TargetApi="l">@android:color/transparent</item>
-<!--        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>-->
+<!--        <item name="android:windowTranslucentStatus">false</item>-->
+<!--&lt;!&ndash;        <item name="android:windowTranslucentNavigation">true</item>&ndash;&gt;-->
+<!--        <item name="android:statusBarColor" tools:TargetApi="l">@android:color/transparent</item>-->
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
     </style>
 
     <style name="Theme.Rine.NoActionBar">
+
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
