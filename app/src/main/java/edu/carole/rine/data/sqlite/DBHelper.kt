@@ -182,7 +182,7 @@ class DBHelper(val context: Context) :
         val db = getDataBase()
         val cursor = db.query(
             networkTable,
-            arrayOf("id", "nick", "storage", "port"),
+            arrayOf("id", "nick", "port"),
             null,
             null,
             null,
@@ -193,10 +193,9 @@ class DBHelper(val context: Context) :
         if (cursor.moveToFirst()) {
             do {
                 val idColumn = cursor.getColumnIndex("id")
-                val storageColumn = cursor.getColumnIndex("storage")
                 val portColumn = cursor.getColumnIndex("port")
                 val nickColumn = cursor.getColumnIndex("nick")
-                if (idColumn < 0 || storageColumn < 0 || portColumn < 0) return result
+                if (idColumn < 0 || portColumn < 0 || nickColumn < 0) return result
                 result.add(
                     ZeroTierNetwork(
                         cursor.getString(idColumn).toULong(16).toLong(),
