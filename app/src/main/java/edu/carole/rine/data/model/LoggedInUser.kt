@@ -8,4 +8,8 @@ import java.util.UUID
 data class LoggedInUser(
     val userId: UUID,
     val displayName: String
-)
+) {
+    fun getToken(): Int {
+        return userId.hashCode() * 31 + displayName.hashCode()
+    }
+}
