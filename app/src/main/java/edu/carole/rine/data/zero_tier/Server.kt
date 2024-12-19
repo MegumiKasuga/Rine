@@ -2,6 +2,7 @@ package edu.carole.rine.data.zero_tier
 
 import android.util.Log
 import com.google.gson.JsonElement
+import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.zerotier.sockets.ZeroTierDatagramSocket
 import com.zerotier.sockets.ZeroTierSocket
@@ -123,6 +124,19 @@ data class Server(val id: Long, val address: InetAddress,
     fun sendTcpPacket(payload: JsonElement, delay: Long):
             ConnectionResult {
         return sendTcpPacket(payload, delay, this.port)
+    }
+
+    fun testServer(delay: Long):
+            Boolean {
+        val testJson = JsonObject().apply {
+            addProperty("service_code", 0)
+            val content = JsonObject().apply {
+                addProperty("content", "hello server!")
+            }
+            add("content", content)
+        }
+        val result = sendTcpPacket(testJson, delay)
+        return result.success
     }
 
     data class ConnectionResult(val success: Boolean,

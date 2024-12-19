@@ -69,12 +69,6 @@ class NetworkManager {
         return null
     }
 
-//    fun addNetwork(networkId: Long, nick: String, storagePath: String, port: Short) {
-        // ToDO: add real network
-//        val network = ZeroTierNetwork(networkId, nick, storagePath, port)
-//        db.addNetwork(network)
-//    }
-
     fun addNetwork(network: ZeroTierNetwork) {
         db.addNetwork(network)
         node.join(network.networkId)

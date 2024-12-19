@@ -9,6 +9,8 @@ import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import edu.carole.rine.data.RineData
+import edu.carole.rine.data.sqlite.DBHelper
+import edu.carole.rine.data.zero_tier.NetworkManager
 import edu.carole.rine.data.zero_tier.ServerController
 import edu.carole.rine.data.zero_tier.ZeroTierNetwork
 import edu.carole.rine.ui.login.RineLoginActivity
@@ -35,7 +37,9 @@ class WelcomeActivity : AppCompatActivity() {
         }
 
         val data = application as RineData
-        data.networkManager
+        data.db = DBHelper(baseContext)
+        val storageDir = File(baseContext.filesDir, "zerotier/")
+        data.networkManager = NetworkManager(data.db, storageDir.absolutePath, null, 60000)
         thread.start()
     }
 }
