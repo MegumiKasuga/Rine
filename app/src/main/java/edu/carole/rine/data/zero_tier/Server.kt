@@ -6,10 +6,9 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.zerotier.sockets.ZeroTierDatagramSocket
 import com.zerotier.sockets.ZeroTierSocket
-import java.io.IOException
 import java.net.DatagramPacket
 import java.net.InetAddress
-import java.net.SocketAddress
+import java.nio.ByteBuffer
 import kotlin.math.floor
 
 data class Server(val id: Long, val address: InetAddress,
@@ -26,11 +25,13 @@ data class Server(val id: Long, val address: InetAddress,
     }
 
     fun toUniqueStr(): String {
-        return "[Server<$address, $port>]"
+        val addrstr = address.hostAddress
+        return "[Server<${addrstr}, $port>]"
     }
 
     override fun toString(): String {
-        return "[Server<$id, $address, $port, $nick>]"
+        val addrstr = address.hostAddress
+        return "[Server<$id, $addrstr, $port, $nick>]"
     }
 
     fun getTcpSocket(port: Short): ZeroTierSocket? {
@@ -98,16 +99,23 @@ data class Server(val id: Long, val address: InetAddress,
         counter = 0
         tcpSocket.outputStream?.write(bytes.readBytes())
         tcpSocket.outputStream?.flush()
+        tcpSocket.outputStream?.close()
         tcpSocket.shutdownOutput()
         val inputStream = tcpSocket.inputStream
         val stringBuilder = StringBuilder()
+        val buffer = ByteArray(1024)
+        var len = -1
         while (!tcpSocket.inputStreamHasBeenShutdown() || !tcpSocket.isClosed) {
             if (counter > times) {
                 tcpSocket.close()
                 // Waiting too long!
                 return ConnectionResult(false, -2, null)
             }
-            stringBuilder.append(String(inputStream.readBytes(), Charsets.UTF_8))
+            len = inputStream.read(buffer)
+            if (len >= 0)
+                stringBuilder.append(String(buffer, 0, len, Charsets.UTF_8))
+            else
+                break
             Thread.sleep(100)
             counter ++
         }
@@ -116,7 +124,7 @@ data class Server(val id: Long, val address: InetAddress,
         if (!jsonElement.isJsonObject) {
             stateCode = -1
         } else {
-            stateCode = jsonElement.asJsonObject.get("state").asInt
+            stateCode = jsonElement.asJsonObject.get("state_code").asInt
         }
         return ConnectionResult(stateCode > 0, stateCode, jsonElement)
     }
@@ -126,17 +134,23 @@ data class Server(val id: Long, val address: InetAddress,
         return sendTcpPacket(payload, delay, this.port)
     }
 
-    fun testServer(delay: Long):
-            Boolean {
+    fun testServer(manager: NetworkManager, delay: Long):
+            ConnectionResult {
+        val net = manager.getNetwork(this)
+        if (net == null) return ConnectionResult(false, -3, null)
         val testJson = JsonObject().apply {
             addProperty("service_code", 0)
             val content = JsonObject().apply {
-                addProperty("content", "hello server!")
+                addProperty("msg", "hello server!")
+                addProperty("host", manager.node.getIPv4Address(net.networkId).hostAddress)
+                addProperty("mac", manager.node.getMACAddress(net.networkId))
+                addProperty("id", manager.node.id.toULong().toString(16))
+                addProperty("time", System.currentTimeMillis())
             }
             add("content", content)
         }
         val result = sendTcpPacket(testJson, delay)
-        return result.success
+        return result
     }
 
     data class ConnectionResult(val success: Boolean,

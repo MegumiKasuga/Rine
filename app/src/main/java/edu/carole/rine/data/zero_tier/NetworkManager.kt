@@ -13,6 +13,7 @@ import edu.carole.rine.data.sqlite.DBHelper
 import java.io.File
 import java.io.IOException
 import java.net.DatagramPacket
+import java.net.InetAddress
 import kotlin.collections.Map
 import kotlin.math.floor
 import kotlin.math.log
@@ -75,9 +76,22 @@ class NetworkManager {
         servers.put(network, ServerController(network))
     }
 
+    fun getNetwork(server: Server): ZeroTierNetwork? {
+        for (i in servers) {
+            if (i.value.contains(server))
+                return i.key
+        }
+        return null
+    }
+
     fun isJoined(network: ZeroTierNetwork): Boolean {
         if (!servers.contains(network)) return false
         return node.isNetworkTransportReady(network.networkId)
+//        val value = getNetworkAndServerController(network.networkId)?.value
+//        val server = Server(0, InetAddress.getByName("192.168.191.38"), 9998, "")
+//        value?.addServer(server)
+//        server.testServer(this, 60000)
+//        return flag
     }
 
     fun addServer(server: Server, network: ZeroTierNetwork): Boolean {
