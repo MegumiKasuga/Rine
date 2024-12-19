@@ -3,6 +3,7 @@ package edu.carole.rine.data.zero_tier
 import android.util.Log
 import android.widget.Toast
 import androidx.core.util.Consumer
+import androidx.core.util.Supplier
 import com.google.gson.JsonElement
 import com.google.gson.JsonParser
 import com.zerotier.sockets.ZeroTierDatagramSocket
@@ -12,7 +13,9 @@ import edu.carole.rine.data.sqlite.DBHelper
 import java.io.File
 import java.io.IOException
 import java.net.DatagramPacket
+import kotlin.collections.Map
 import kotlin.math.floor
+import kotlin.math.log
 
 class NetworkManager {
 
@@ -56,6 +59,14 @@ class NetworkManager {
 
     fun getNetworks(): List<ZeroTierNetwork> {
         return db.getAllNetworks()
+    }
+
+    fun getNetworkAndServerController(id: Long): Map.Entry<ZeroTierNetwork, ServerController>? {
+        for (i in servers) {
+            if (i.key.networkId == id)
+                return i
+        }
+        return null
     }
 
 //    fun addNetwork(networkId: Long, nick: String, storagePath: String, port: Short) {
@@ -115,6 +126,34 @@ class NetworkManager {
         if (index != -1) {
             networksList[index] = updatedNetwork
         }
+    }
+
+    fun sendTcpPacket(netId: Long, id: Long, port: Short, payload: JsonElement, delay: Long):
+            Supplier<Server.ConnectionResult> {
+        val ns = getNetworkAndServerController(netId)
+        if (ns == null) return Supplier { Server.ConnectionResult(false, -1, null) }
+        return ns.value.sendTcpPacket(id, port, payload, delay)
+    }
+
+    fun sendTcpPacket(netId: Long, id: Long, payload: JsonElement, delay: Long):
+            Supplier<Server.ConnectionResult> {
+        val ns = getNetworkAndServerController(netId)
+        if (ns == null) return Supplier { Server.ConnectionResult(false, -1, null) }
+        return ns.value.sendTcpPacket(id, payload, delay)
+    }
+
+    fun sendUdpPacket(netId: Long, id: Long, port: Short, payload: ByteArray, delay: Long):
+            Supplier<Server.UdpConnectionResult> {
+        val ns = getNetworkAndServerController(netId)
+        if (ns == null) return Supplier { Server.UdpConnectionResult(false, ByteArray(0)) }
+        return ns.value.sendUdpPacket(id, port, payload, delay)
+    }
+
+    fun sendUdpPacket(netId: Long, id: Long, payload: ByteArray, delay: Long):
+            Supplier<Server.UdpConnectionResult> {
+        val ns = getNetworkAndServerController(netId)
+        if (ns == null) return Supplier { Server.UdpConnectionResult(false, ByteArray(0)) }
+        return ns.value.sendUdpPacket(id, payload, delay)
     }
 }
 
