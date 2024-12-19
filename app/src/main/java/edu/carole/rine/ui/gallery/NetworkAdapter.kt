@@ -44,6 +44,7 @@ class NetworkAdapter(
             holder.nickTextView = view.findViewById(R.id.nick)
             holder.portTextView = view.findViewById(R.id.port)
             holder.disconnectTextView = view.findViewById(R.id.disconnect)
+            holder.connectTextView = view.findViewById(R.id.connect) // 添加 connectTextView
             holder.deleteButton = view.findViewById(R.id.delete_button)
             holder.editButton = view.findViewById(R.id.edit_button)
             holder.testButton = view.findViewById(R.id.test_button)
@@ -57,17 +58,33 @@ class NetworkAdapter(
         holder.nickTextView.text = network.nick
         holder.portTextView.text = network.port.toString()
 
+        // 更新连接状态显示
+        val isConnected = networks.isJoined(network)
+        holder.disconnectTextView.visibility = if (isConnected) View.GONE else View.VISIBLE
+        holder.connectTextView.visibility = if (isConnected) View.VISIBLE else View.GONE
+
         fun ViewHolder.setButtonsVisibility(showButtons: Boolean) {
             with(this) {
                 deleteButton.visibility = if (showButtons) View.VISIBLE else View.GONE
                 editButton.visibility = if (showButtons) View.VISIBLE else View.GONE
                 testButton.visibility = if (showButtons) View.VISIBLE else View.GONE
-                disconnectTextView.visibility = if (showButtons) View.GONE else View.VISIBLE
+                
+                // 根据连接状态决定显示哪个文本
+                val isConnected = networks.isJoined(networks.getNetworks()[position])
+                if (!showButtons) {
+                    // 只有在不显示按钮时才显示连接状态
+                    disconnectTextView.visibility = if (isConnected) View.GONE else View.VISIBLE
+                    connectTextView.visibility = if (isConnected) View.VISIBLE else View.GONE
+                } else {
+                    // 显示按钮时隐藏连接状态
+                    disconnectTextView.visibility = View.GONE
+                    connectTextView.visibility = View.GONE
+                }
             }
             currentVisibleDeleteButton = if (showButtons) deleteButton else null
             currentVisibleEditButton = if (showButtons) editButton else null
             currentVisibleTestButton = if (showButtons) testButton else null
-            currentVisibleDisconnectTextView = if (showButtons) disconnectTextView else null
+            currentVisibleDisconnectTextView = if (showButtons) null else disconnectTextView
         }
 
         view.setOnClickListener {
@@ -97,6 +114,13 @@ class NetworkAdapter(
         holder.testButton.setOnClickListener {
             val network = networks.getNetworks()[position]
             testNetwork(network)
+            // 测试后立即更新状态显示
+            val isConnected = networks.isJoined(network)
+            // 隐藏所有按钮
+            holder.setButtonsVisibility(false)
+            // 根据连接状态显示对应文本
+            holder.disconnectTextView.visibility = if (isConnected) View.GONE else View.VISIBLE
+            holder.connectTextView.visibility = if (isConnected) View.VISIBLE else View.GONE
         }
         return view
     }
@@ -170,6 +194,7 @@ class NetworkAdapter(
         lateinit var nickTextView: TextView
         lateinit var portTextView: TextView
         lateinit var disconnectTextView: TextView
+        lateinit var connectTextView: TextView  // 添加 connectTextView
         lateinit var deleteButton: Button
         lateinit var editButton: Button
         lateinit var testButton: Button
