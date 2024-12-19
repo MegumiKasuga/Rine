@@ -12,6 +12,7 @@
     <string name="menu_gallery">Network</string>
     <string name="menu_slideshow">Settings</string>
     <string name="menu_quit">Quit</string>
+    <string name="menu_search">Search</string>
     <string name="title_activity_rine_login">RineLoginActivity</string>
     <string name="prompt_email">Username</string>
     <string name="prompt_password">Password</string>

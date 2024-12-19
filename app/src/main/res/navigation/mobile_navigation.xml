@@ -25,6 +25,6 @@
     <fragment
         android:id="@+id/nav_search"
         android:name="edu.carole.rine.ui.searchChat.SearchFragment"
-        android:label="@string/menu_slideshow"
+        android:label="@string/menu_search"
         tools:layout="@layout/fragment_searchchat" />
 </navigation>
