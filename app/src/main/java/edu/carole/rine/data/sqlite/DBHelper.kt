@@ -41,7 +41,7 @@ class DBHelper(val context: Context) :
             "nick TEXT)"
 
     val createChatMessageDb = "CREATE TABLE rine_chat_message(" +
-            "id LONG PRIMARY KEY, " +
+            "msg_id INTERGER PRIMARY KEY AUTOINCREAMENT, " +
             "chat_id LONG, " +
             "sender_id TEXT, " +
             "message TEXT, " +
@@ -293,7 +293,7 @@ class DBHelper(val context: Context) :
 
 
     data class ChatMessage(
-        val id: Long,
+        val msg_id: Long = 0,
         val chatId: Long,
         val senderId: UUID,
         val message: String,
@@ -304,7 +304,7 @@ class DBHelper(val context: Context) :
         val db = getDataBase()
         val cursor = db.query(
             chatMessageTable,
-            arrayOf("id", "chat_id", "sender_id", "message", "timestamp"),
+            arrayOf("msg_id", "chat_id", "sender_id", "message", "timestamp"),
             "chat_id=?",
             arrayOf(chatId.toString()),
             null,
@@ -316,12 +316,12 @@ class DBHelper(val context: Context) :
 
         if (cursor.moveToFirst()) {
             do {
-                val id = cursor.getLong(cursor.getColumnIndexOrThrow("id"))
+                val msgId = cursor.getLong(cursor.getColumnIndexOrThrow("msg_id"))
                 val senderId = UUID.fromString(cursor.getString(cursor.getColumnIndexOrThrow("sender_id")))
                 val message = cursor.getString(cursor.getColumnIndexOrThrow("message"))
                 val timestamp = cursor.getLong(cursor.getColumnIndexOrThrow("timestamp"))
 
-                messages.add(ChatMessage(id, chatId, senderId, message, timestamp))
+                messages.add(ChatMessage(msgId, chatId, senderId, message, timestamp))
             } while (cursor.moveToNext())
         }
         cursor.close()
@@ -330,7 +330,7 @@ class DBHelper(val context: Context) :
 
     fun addChatMessage(message: ChatMessage): Boolean {
         val content = ContentValues().apply {
-            put("id", message.id)
+
             put("chat_id", message.chatId)
             put("sender_id", message.senderId.toString())
             put("message", message.message)
@@ -345,16 +345,16 @@ class DBHelper(val context: Context) :
         }
     }
 
-    fun deleteChatMessage(messageId: Long, chatId: Long, timestamp: Long): Boolean {
+    fun deleteChatMessage(msgId: Long, timestamp: Long): Boolean {
         return try {
             val deletedRows = getDataBase().delete(
                 chatMessageTable,
-                "id = ? AND chat_id = ? AND timestamp = ?",
-                arrayOf(messageId.toString(), chatId.toString(), timestamp.toString())
+                "msg_id = ? AND timestamp = ?",
+                arrayOf(msgId.toString(), timestamp.toString())
             )
 
             if (deletedRows > 0) {
-                Log.d("DBHelper", "成功删除消息: ID=$messageId, ChatID=$chatId, Timestamp=$timestamp")
+                Log.d("DBHelper", "成功删除消息: ID=$msgId, Timestamp=$timestamp")
                 true
             } else {
                 Log.w("DBHelper", "未找到符合条件的消息")
@@ -370,7 +370,7 @@ class DBHelper(val context: Context) :
         val db = getDataBase()
         val cursor = db.query(
             chatMessageTable,
-            arrayOf("id", "chat_id", "sender_id", "message", "timestamp"),
+            arrayOf("msg_id", "chat_id", "sender_id", "message", "timestamp"),
             "chat_id=?",
             arrayOf(chatId.toString()),
             null,
@@ -381,13 +381,11 @@ class DBHelper(val context: Context) :
 
         var message: ChatMessage? = null
         if (cursor.moveToFirst()) {
-            message = ChatMessage(
-                cursor.getLong(cursor.getColumnIndexOrThrow("id")),
-                chatId,
-                UUID.fromString(cursor.getString(cursor.getColumnIndexOrThrow("sender_id"))),
-                cursor.getString(cursor.getColumnIndexOrThrow("message")),
-                cursor.getLong(cursor.getColumnIndexOrThrow("timestamp"))
-            )
+            val msgId = cursor.getLong(cursor.getColumnIndexOrThrow("msg_id"))
+            val senderId = UUID.fromString(cursor.getString(cursor.getColumnIndexOrThrow("sender_id")))
+            val messageText = cursor.getString(cursor.getColumnIndexOrThrow("message"))
+            val messageTimestamp = cursor.getLong(cursor.getColumnIndexOrThrow("timestamp"))
+            message = ChatMessage(msgId, chatId, senderId, messageText, messageTimestamp)
         }
         cursor.close()
         return message
