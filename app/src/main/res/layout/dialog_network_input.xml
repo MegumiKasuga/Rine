@@ -3,10 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@drawable/rounded_dialog_background">
+    android:background="@drawable/rounded_dialog_background"
+    android:padding="15dp">
 
     <TextView
-
         android:id="@+id/dialog_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -14,8 +14,18 @@
         android:textSize="20sp"
         android:textStyle="bold"
         android:padding="16dp"
-        android:gravity="left" />
-
+        android:gravity="left"
+        android:visibility="visible"/>
+    <TextView
+        android:id="@+id/edit_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="修改网络"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:padding="16dp"
+        android:gravity="left"
+        android:visibility="gone"/>
     <!-- 分割线 -->
 <!--    <View-->
 <!--        android:layout_width="match_parent"-->

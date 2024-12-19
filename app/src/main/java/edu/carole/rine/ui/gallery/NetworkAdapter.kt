@@ -109,8 +109,14 @@ class NetworkAdapter(
         val portInput = dialogView.findViewById<EditText>(R.id.port_input)
         val positiveButton = dialogView.findViewById<Button>(R.id.positive_button)
         val negativeButton = dialogView.findViewById<Button>(R.id.negative_button)
+        val dialogTitle = dialogView.findViewById<TextView>(R.id.dialog_title)
+        val editTitle = dialogView.findViewById<TextView>(R.id.edit_title)
 
-        networkIdInput.setText(network.networkId.toString(16))
+        // 隐藏默认标题，显示编辑标题
+        dialogTitle.visibility = View.GONE
+        editTitle.visibility = View.VISIBLE
+
+        networkIdInput.setText(network.networkId.toULong().toString(16))
         networkIdInput.isEnabled = false
         nickInput.setText(network.nick)
         portInput.setText(network.port.toString())
@@ -152,6 +158,7 @@ class NetworkAdapter(
 
     private fun testNetwork(network: ZeroTierNetwork) {
         networks.isJoined(network)
+
     }
 
     fun updateNetworks(newNetworks: List<ZeroTierNetwork>) {
