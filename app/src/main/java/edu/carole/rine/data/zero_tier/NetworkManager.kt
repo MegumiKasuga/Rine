@@ -88,8 +88,8 @@ class NetworkManager {
     fun removeNetwork(network: ZeroTierNetwork) {
         try {
             db.removeNetwork(network)
+            node.leave(network.networkId)
             Toast.makeText(db.context, "id: ${network.networkId} has been removed", Toast.LENGTH_SHORT).show()
-
         } catch (e: Exception) {
             Toast.makeText(db.context, "There's something wrong...", Toast.LENGTH_SHORT).show()
         }
