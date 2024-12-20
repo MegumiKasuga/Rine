@@ -40,6 +40,7 @@ class WelcomeActivity : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
+        thread.start()
 
         val data = application as RineData
         val server = Server(0, InetAddress.getByName("192.168.191.38"), 9998, "")
