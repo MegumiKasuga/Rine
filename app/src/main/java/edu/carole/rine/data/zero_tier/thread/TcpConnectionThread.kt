@@ -10,7 +10,7 @@ class TcpConnectionThread: Thread {
     val port: Short
     val server: Server
     val delay: Long
-    var result: Server.ConnectionResult?
+    var result: Server.ConnectionResult? = null
 
     constructor(payload: JsonElement, server: Server, port: Short, delay: Long): super() {
         this.payload = payload

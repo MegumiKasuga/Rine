@@ -24,9 +24,7 @@ class LoginViewModel : ViewModel {
 
     private val _loginForm = MutableLiveData<LoginFormState>()
     val loginFormState: LiveData<LoginFormState> = _loginForm
-
     val db: DBHelper
-
     private val _loginResult = MutableLiveData<LoginResult>()
     val loginResult: LiveData<LoginResult> = _loginResult
     val networkManager: NetworkManager

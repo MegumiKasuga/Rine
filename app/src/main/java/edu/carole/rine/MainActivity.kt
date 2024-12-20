@@ -39,6 +39,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var networkManager: NetworkManager
     private lateinit var db: DBHelper
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

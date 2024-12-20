@@ -9,7 +9,7 @@ class UdpConnectionThread: Thread {
     val port: Short
     val server: Server
     val delay: Long
-    var result: Server.UdpConnectionResult?
+    var result: Server.UdpConnectionResult? = null
 
     constructor(payload: ByteArray, server: Server, port: Short, delay: Long): super() {
         this.payload = payload

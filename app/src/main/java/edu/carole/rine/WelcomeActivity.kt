@@ -61,6 +61,5 @@ class WelcomeActivity : AppCompatActivity() {
 //            })
 //        }
 //        val result = nm.sendTcpPacket(net.networkId, server.id, packet, 60000)
-//        thread.start()
     }
 }
