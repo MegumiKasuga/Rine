@@ -30,8 +30,4 @@ class UdpConnectionThread: Thread {
     override fun run() {
         result = server.sendUdpPacket(payload, port)
     }
-
-    fun getResult(): Server.UdpConnectionResult? {
-        return result
-    }
 }

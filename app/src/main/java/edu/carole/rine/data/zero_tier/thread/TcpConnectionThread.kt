@@ -31,8 +31,4 @@ class TcpConnectionThread: Thread {
     override fun run() {
         result = server.sendTcpPacket(payload, delay, port)
     }
-
-    fun getResult(): Server.ConnectionResult? {
-        return result
-    }
 }
