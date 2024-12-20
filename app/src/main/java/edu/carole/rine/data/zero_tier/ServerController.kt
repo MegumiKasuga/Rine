@@ -58,23 +58,23 @@ class ServerController {
     }
 
     fun sendTcpPacket(id: Long, port: Short, json: JsonElement, delay: Long):
-            Supplier<Server.ConnectionResult> {
+            Supplier<Server.ConnectionResult?> {
         val server = getServer(id)
         if (server == null) return Supplier {Server.ConnectionResult(false, -3, null)}
         val thread = TcpConnectionThread(json, server, port, delay)
         servers.get(server)?.add(thread)
         thread.start()
-        return thread.getResult()
+        return Supplier{ thread.getResult() }
     }
 
     fun sendTcpPacket(id: Long, json: JsonElement, delay: Long):
-            Supplier<Server.ConnectionResult> {
+            Supplier<Server.ConnectionResult?> {
         val server = getServer(id)
         if (server == null) return Supplier {Server.ConnectionResult(false, -3, null)}
         val thread = TcpConnectionThread(json, server, server.port, delay)
         servers.get(server)?.add(thread)
         thread.start()
-        return thread.getResult()
+        return Supplier {thread.getResult()}
     }
 
     fun sendUdpPacket(id: Long, port: Short, payload: ByteArray, delay: Long):
@@ -84,7 +84,7 @@ class ServerController {
         val thread = UdpConnectionThread(payload, server, port, delay)
         servers.get(server)?.add(thread)
         thread.start()
-        return thread.getResult()
+        return Supplier{thread.getResult()}
     }
 
     fun sendUdpPacket(id: Long, payload: ByteArray, delay: Long):
@@ -94,7 +94,7 @@ class ServerController {
         val thread = UdpConnectionThread(payload, server, server.port, delay)
         servers.get(server)?.add(thread)
         thread.start()
-        return thread.getResult()
+        return Supplier{thread.getResult()}
     }
 
     fun removeAllDeadThread() {

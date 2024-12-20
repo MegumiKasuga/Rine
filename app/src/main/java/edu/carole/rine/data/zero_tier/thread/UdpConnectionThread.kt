@@ -29,7 +29,7 @@ class UdpConnectionThread: Thread {
         result = server.sendUdpPacket(payload, port)
     }
 
-    fun getResult(): Supplier<Server.UdpConnectionResult> {
-        return Supplier {result}
+    fun getResult(): Server.UdpConnectionResult {
+        return result
     }
 }
