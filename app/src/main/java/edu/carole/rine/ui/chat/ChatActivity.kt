@@ -11,6 +11,8 @@ import edu.carole.rine.data.model.Msg
 import edu.carole.rine.data.sqlite.DBHelper
 import edu.carole.rine.databinding.ActivityChatBinding
 import java.util.UUID
+import edu.carole.rine.data.model.Chat
+import edu.carole.rine.data.Message.MsgManager
 
 class ChatActivity : AppCompatActivity() {
 
@@ -42,21 +44,40 @@ class ChatActivity : AppCompatActivity() {
         msgList.add(Msg(user1, "24岁，是学生"))
         msgList.add(Msg(user2, "鸭蛋摸鸭蛋，牡蛎摸牡蛎"))
         msgList.add(Msg(user3, "1145141919810"))
+        val dummyChat = Chat(114515L, "dummy chat", 0L, false)
+        db.addChat(dummyChat)
+        val msgManager = MsgManager(db)
+        val chatMessages: List<DBHelper.ChatMessage> = msgManager.loadChatMessages(dummyChat.id)
+        for (chatMessage in chatMessages) { // 根据 senderId 获取用户信息
+            val sender = db.getLoggedInUser(chatMessage.senderId) ?: LoggedInUser(chatMessage.senderId, "未知用户")
+            msgList.add(Msg(sender, chatMessage.message)) }
         val adapter = MsgAdapter(this, R.layout.msg_item, msgList)
         listView.divider = null
         listView.adapter = adapter
 
+//        val adapter = MsgAdapter(this, R.layout.msg_item, msgList)
+//        listView.divider = null listView.adapter = adapter
         sendMsgBtn.setOnClickListener {
             val msgContent = msgEditor.text.toString()
             msgList.add(Msg(user1, msgContent))
             adapter.notifyDataSetChanged()
             msgEditor.text.clear()
+            msgManager.sendMessage(dummyChat.id, user1.userId, msgContent)
         }
         returnBtn.setOnClickListener {
             finish()
         }
 
-
+//        sendMsgBtn.setOnClickListener {
+//            val msgContent = msgEditor.text.toString()
+//            if (msgContent.isNotBlank()) {
+//                val newMsg = Msg(user1, msgContent)
+//                msgList.add(newMsg)
+//                adapter.notifyDataSetChanged()
+//                msgEditor.text.clear()
+//                msgManager.sendMessage(dummyChat.id, user1.userId, msgContent) }
+//            returnBtn.setOnClickListener { finish() }
+//        }
 
 
 //        val chatWindow = this.binding.chatWindow

@@ -42,7 +42,7 @@ class DBHelper(val context: Context) :
             "nick TEXT)"
 
     val createChatMessageDb = "CREATE TABLE rine_chat_message(" +
-            "msg_id INTERGER PRIMARY KEY AUTOINCREAMENT, " +
+            "msg_id INTERGER PRIMARY KEY, " +
             "chat_id LONG, " +
             "sender_id TEXT, " +
             "message TEXT, " +
@@ -301,6 +301,27 @@ class DBHelper(val context: Context) :
         val timestamp: Long
     )
 
+    fun getLoggedInUser(userId: UUID): LoggedInUser? {
+        val db = getDataBase()
+        val cursor = db.query(
+            userTable,
+            arrayOf("id", "name"),
+            "id=?",
+            arrayOf(userId.toString()),
+            null,
+            null,
+            null
+        )
+
+        if (cursor.moveToFirst()) {
+            val name = cursor.getString(cursor.getColumnIndexOrThrow("name"))
+            cursor.close()
+            return LoggedInUser(userId, name)
+    }
+        cursor.close()
+        return null
+    }
+
     fun getChatMessages(chatId: Long): List<ChatMessage> {
         val db = getDataBase()
         val cursor = db.query(
@@ -310,7 +331,7 @@ class DBHelper(val context: Context) :
             arrayOf(chatId.toString()),
             null,
             null,
-            "timestamp DESC"
+            "timestamp ASC"
         )
 
         val messages = mutableListOf<ChatMessage>()
