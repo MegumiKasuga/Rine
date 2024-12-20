@@ -9,13 +9,14 @@ class UdpConnectionThread: Thread {
     val port: Short
     val server: Server
     val delay: Long
-    lateinit var result: Server.UdpConnectionResult
+    var result: Server.UdpConnectionResult?
 
     constructor(payload: ByteArray, server: Server, port: Short, delay: Long): super() {
         this.payload = payload
         this.port = port
         this.server = server
         this.delay = delay
+        this.result = null
     }
 
     constructor(payload: ByteArray, server: Server, delay: Long): super() {
@@ -23,13 +24,14 @@ class UdpConnectionThread: Thread {
         this.port = server.port
         this.server = server
         this.delay = delay
+        this.result = null
     }
 
     override fun run() {
         result = server.sendUdpPacket(payload, port)
     }
 
-    fun getResult(): Server.UdpConnectionResult {
+    fun getResult(): Server.UdpConnectionResult? {
         return result
     }
 }

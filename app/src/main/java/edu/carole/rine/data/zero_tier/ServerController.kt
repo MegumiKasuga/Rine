@@ -78,7 +78,7 @@ class ServerController {
     }
 
     fun sendUdpPacket(id: Long, port: Short, payload: ByteArray, delay: Long):
-            Supplier<Server.UdpConnectionResult> {
+            Supplier<Server.UdpConnectionResult?> {
         val server = getServer(id)
         if (server == null) return Supplier {Server.UdpConnectionResult(false, ByteArray(0))}
         val thread = UdpConnectionThread(payload, server, port, delay)
@@ -88,7 +88,7 @@ class ServerController {
     }
 
     fun sendUdpPacket(id: Long, payload: ByteArray, delay: Long):
-            Supplier<Server.UdpConnectionResult> {
+            Supplier<Server.UdpConnectionResult?> {
         val server = getServer(id)
         if (server == null) return Supplier {Server.UdpConnectionResult(false, ByteArray(0))}
         val thread = UdpConnectionThread(payload, server, server.port, delay)
