@@ -374,7 +374,6 @@ class DBHelper(val context: Context) :
                 "msg_id = ? AND timestamp = ?",
                 arrayOf(msgId.toString(), timestamp.toString())
             )
-
             if (deletedRows > 0) {
                 Log.d("DBHelper", "成功删除消息: ID=$msgId, Timestamp=$timestamp")
                 true
