@@ -158,6 +158,18 @@ class NetworkManager {
         if (ns == null) return Supplier { Server.UdpConnectionResult(false, ByteArray(0)) }
         return ns.value.sendUdpPacket(id, payload, delay)
     }
+
+    fun forEachServer(iter: ServerIter) {
+        servers.forEach {
+                key, value -> value.getServers().forEach { server ->
+                    iter.iterate(key, server)
+            }
+        }
+    }
+
+    fun interface ServerIter {
+        fun iterate(network: ZeroTierNetwork, server: Server)
+    }
 }
 
 

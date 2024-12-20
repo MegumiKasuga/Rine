@@ -13,6 +13,7 @@ class RineData: Application() {
     lateinit var networkManager: NetworkManager
     lateinit var db: DBHelper
     lateinit var chatCache: HashMap<Chat, List<Msg>>
+    var token: Int = 0
 
     override fun onCreate() {
         super.onCreate()

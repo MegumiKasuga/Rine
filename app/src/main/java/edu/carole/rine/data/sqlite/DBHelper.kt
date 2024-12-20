@@ -423,6 +423,28 @@ class DBHelper(val context: Context) :
         return null
     }
 
+    fun getPass(user: LoggedInUser): String {
+        val db = getDataBase()
+        val cursor =
+            db.query(userTable, arrayOf("id", "name", "auto_login"), null, null, null, null, null)
+        if (cursor.moveToFirst()) {
+            do {
+                val idColumn = cursor.getColumnIndex("id")
+                val nameColumn = cursor.getColumnIndex("name")
+                val passColumn = cursor.getColumnIndex("pass")
+                if (passColumn < 0 || idColumn < 0 || nameColumn < 0) return ""
+                if (cursor.getString(nameColumn).equals(user.displayName) &&
+                    UUID.fromString(cursor.getString(idColumn)).equals(user.userId)) {
+                    val result = cursor.getString(passColumn)
+                    cursor.close()
+                    return result
+                }
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return ""
+    }
+
     fun getAllServers(): Map<Server, Long> {
         val db = getDataBase()
         val cursor = db.query(serverTable, arrayOf("id", "net", "address", "port", "nick"),

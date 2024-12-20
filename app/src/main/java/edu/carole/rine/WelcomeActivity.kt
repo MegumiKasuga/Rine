@@ -46,18 +46,18 @@ class WelcomeActivity : AppCompatActivity() {
         val nm = data.networkManager
         val net = nm.getNetworks()[0]
         nm.addServer(server, net)
-        val user = LoggedInUser(UUID.fromString("3ab02940-d08d-4c47-8036-e1cc94e8ea31"), "Carole")
-        val token = user.getToken("1145141919")
-        // TOKEN: -387105882
-        Log.d("TOKEN", token.toString())
-        val packet = JsonObject().apply {
-            addProperty("service_code", 1)
-            add("content", JsonObject().apply {
-                addProperty("id", user.userId.toString())
-                addProperty("token", token)
-            })
-        }
-        val result = nm.sendTcpPacket(net.networkId, server.id, packet, 60000)
-        thread.start()
+//        val user = LoggedInUser(UUID.fromString("3ab02940-d08d-4c47-8036-e1cc94e8ea31"), "Carole")
+//        val token = user.getToken("1145141919")
+//        // TOKEN: -387105882
+//        Log.d("TOKEN", token.toString())
+//        val packet = JsonObject().apply {
+//            addProperty("service_code", 1)
+//            add("content", JsonObject().apply {
+//                addProperty("id", user.userId.toString())
+//                addProperty("token", token)
+//            })
+//        }
+//        val result = nm.sendTcpPacket(net.networkId, server.id, packet, 60000)
+//        thread.start()
     }
 }

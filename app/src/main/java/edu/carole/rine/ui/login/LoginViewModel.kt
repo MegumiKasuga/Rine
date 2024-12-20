@@ -10,7 +10,9 @@ import com.google.gson.JsonObject
 import edu.carole.rine.data.Result
 
 import edu.carole.rine.R
+import edu.carole.rine.data.RineData
 import edu.carole.rine.data.model.LoggedInUser
+import edu.carole.rine.data.packet.LoginOrRegPacket
 import edu.carole.rine.data.sqlite.DBHelper
 import edu.carole.rine.data.zero_tier.NetworkManager
 import edu.carole.rine.data.zero_tier.ServerController
@@ -28,10 +30,13 @@ class LoginViewModel : ViewModel {
     private val _loginResult = MutableLiveData<LoginResult>()
     val loginResult: LiveData<LoginResult> = _loginResult
     val networkManager: NetworkManager
+    lateinit var loginStandbyThread: Thread
+    val data: RineData
 
-    constructor(db: DBHelper, networkManager: NetworkManager) : super() {
+    constructor(db: DBHelper, networkManager: NetworkManager, data: RineData) : super() {
         this.db = db
         this.networkManager = networkManager
+        this.data = data
     }
 
     fun login(username: String, password: String, autoLogin: Boolean, rememberMe: Boolean, sp: SharedPreferences) {
@@ -50,20 +55,7 @@ class LoginViewModel : ViewModel {
                     Result.Error(Exception("Unexpected Error in login"))
                 } else {
                     val user = LoggedInUser(id, username)
-                    val obj = JsonObject().apply {
-                        addProperty("service_code", 1)
-                        val contentObj = JsonObject().apply {
-                            addProperty("id", id.toString())
-                            addProperty("token",  user.getToken(password))
-                        }
-                        add("content", contentObj)
-                    }
-
-                    networkManager.servers.forEach {
-                        key, value -> value.getServers().forEach { server ->
-                            val result = networkManager.sendTcpPacket(key.networkId, server.id, obj, 60000)
-                        }
-                    }
+                    getThread(user, password, true)
                     Result.Success(user)
                 }
             } else {
@@ -92,6 +84,8 @@ class LoginViewModel : ViewModel {
     fun autoLogin() {
         val autoLoginUser = db.getAutoLogin()
         if (autoLoginUser == null) return
+        val pass = db.getPass(autoLoginUser)
+        getThread(autoLoginUser, pass, true)
         val result = Result.Success(autoLoginUser)
         _loginResult.value =
             LoginResult(success = LoggedInUserView(displayName = result.data.displayName))
@@ -112,7 +106,9 @@ class LoginViewModel : ViewModel {
         else {
             val id = UUID.randomUUID()
             db.register(username, password, id, autoLogin)
-            Result.Success(LoggedInUser(id, username))
+            val user = LoggedInUser(id, username)
+            getThread(user, password, false)
+            Result.Success(user)
         }
         if (result is Result.Success) {
             _loginResult.value =
@@ -153,5 +149,17 @@ class LoginViewModel : ViewModel {
     // A placeholder password validation check
     private fun isPasswordValid(password: String): Boolean {
         return password.length > 5 && password.length <= 16
+    }
+
+    private fun getThread(user: LoggedInUser, password: String, isLogin: Boolean) {
+        loginStandbyThread = Thread {
+            val packet = LoginOrRegPacket(user, password, isLogin)
+            data.token = user.getToken(password)
+            networkManager.forEachServer({net, server ->
+                networkManager.sendTcpPacket(net.networkId, server.id, packet.getJson(), 60000)
+            })
+            // TODO: Deal with return values.
+        }
+        loginStandbyThread.start()
     }
 }

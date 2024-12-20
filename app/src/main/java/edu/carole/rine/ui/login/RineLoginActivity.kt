@@ -49,7 +49,7 @@ class RineLoginActivity : AppCompatActivity() {
         val welcomeText = binding.welcomeText
         val sp = getPreferences(MODE_PRIVATE)
 
-        loginViewModel = ViewModelProvider(this, LoginViewModelFactory(data.db, data.networkManager))
+        loginViewModel = ViewModelProvider(this, LoginViewModelFactory(data.db, data.networkManager, data))
             .get(LoginViewModel::class.java)
 
         loginViewModel.loginFormState.observe(this@RineLoginActivity, Observer {
