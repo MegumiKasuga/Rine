@@ -1,7 +1,9 @@
 package edu.carole.rine.ui.chat
 
 import android.os.Bundle
+import android.view.animation.AnimationUtils
 import android.widget.Button
+import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
 import edu.carole.rine.R
 import edu.carole.rine.data.RineData
@@ -63,10 +65,15 @@ class ChatActivity : AppCompatActivity() {
             adapter.notifyDataSetChanged()
             msgEditor.text.clear()
             msgManager.sendMessage(dummyChat.id, user1.userId, msgContent)
+            val listView: ListView = findViewById(R.id.chat_list)
+            val animation = AnimationUtils.loadLayoutAnimation(this, R.anim.layout_animation)
+            listView.layoutAnimation = animation
+
         }
         returnBtn.setOnClickListener {
             finish()
         }
+
 
 //        sendMsgBtn.setOnClickListener {
 //            val msgContent = msgEditor.text.toString()
