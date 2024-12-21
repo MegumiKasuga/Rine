@@ -14,6 +14,8 @@ import kotlin.math.floor
 data class Server(val id: Long, val address: InetAddress,
                   val port: Short, val nick: String) {
 
+    private var online: Boolean = false
+
     override fun equals(other: Any?): Boolean {
         if (other !is Server) return false
         return this.port == other.port &&
@@ -32,6 +34,14 @@ data class Server(val id: Long, val address: InetAddress,
     override fun toString(): String {
         val addrstr = address.hostAddress
         return "[Server<$id, $addrstr, $port, $nick>]"
+    }
+
+    fun setOnline(online: Boolean) {
+        this.online = online
+    }
+
+    fun isOnline(): Boolean {
+        return online
     }
 
     fun getTcpSocket(port: Short): ZeroTierSocket? {

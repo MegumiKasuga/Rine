@@ -1,22 +1,17 @@
 package edu.carole.rine.ui.login
 
-import android.content.Context
 import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import android.util.Patterns
-import com.google.gson.JsonObject
 import edu.carole.rine.data.Result
 
 import edu.carole.rine.R
 import edu.carole.rine.data.RineData
 import edu.carole.rine.data.model.LoggedInUser
-import edu.carole.rine.data.packet.LoginOrRegPacket
+import edu.carole.rine.data.packet.LogPacket
 import edu.carole.rine.data.sqlite.DBHelper
 import edu.carole.rine.data.zero_tier.NetworkManager
-import edu.carole.rine.data.zero_tier.ServerController
-import edu.carole.rine.data.zero_tier.ZeroTierNetwork
 import java.io.IOException
 import java.util.UUID
 
@@ -54,7 +49,7 @@ class LoginViewModel : ViewModel {
                 } else {
                     val user = LoggedInUser(id, username)
                     data.user = user
-                    getThread(user, password, true)
+                    sendDataToServers(user, password, LogPacket.Type.LOGIN)
                     Result.Success(user)
                 }
             } else {
@@ -85,7 +80,7 @@ class LoginViewModel : ViewModel {
         if (autoLoginUser == null) return
         data.user = autoLoginUser
         val pass = db.getPass(autoLoginUser)
-        getThread(autoLoginUser, pass, true)
+        sendDataToServers(autoLoginUser, pass, LogPacket.Type.LOGIN)
         val result = Result.Success(autoLoginUser)
         _loginResult.value =
             LoginResult(success = LoggedInUserView(displayName = result.data.displayName))
@@ -108,7 +103,7 @@ class LoginViewModel : ViewModel {
             db.register(username, password, id, autoLogin)
             val user = LoggedInUser(id, username)
             data.user = user
-            getThread(user, password, false)
+            sendDataToServers(user, password, LogPacket.Type.REGISTER)
             Result.Success(user)
         }
         if (result is Result.Success) {
@@ -152,15 +147,18 @@ class LoginViewModel : ViewModel {
         return password.length > 5 && password.length <= 16
     }
 
-    private fun getThread(user: LoggedInUser, password: String, isLogin: Boolean) {
-        loginStandbyThread = Thread {
-            val packet = LoginOrRegPacket(user, password, isLogin)
-            data.token = user.getToken(password)
-            networkManager.forEachServer({net, server ->
-                networkManager.sendTcpPacket(net.networkId, server.id, packet.getJson(), 60000)
+    private fun sendDataToServers(user: LoggedInUser, password: String, type: LogPacket.Type) {
+        val packet = LogPacket(user, password, type)
+        data.token = user.getToken(password)
+        networkManager.forEachServer({net, server ->
+            networkManager.sendTcpPacket(net.networkId, server.id, packet.getJson(), 60000, {
+                    result -> if (result == null || result.reply == null) return@sendTcpPacket
+                val replyJson = result.reply.asJsonObject
+                if (replyJson.get("state_code").asInt != 200) return@sendTcpPacket
+                val replyContent = replyJson.get("content").asJsonObject
+                if (replyContent.get("msg").asString != "success") return@sendTcpPacket
+                server.setOnline(true)
             })
-            // TODO: Deal with return values.
-        }
-        loginStandbyThread.start()
+        })
     }
 }

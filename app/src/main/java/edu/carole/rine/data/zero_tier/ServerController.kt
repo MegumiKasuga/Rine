@@ -3,6 +3,7 @@ package edu.carole.rine.data.zero_tier
 import androidx.core.util.Supplier
 import com.google.gson.JsonElement
 import com.zerotier.sockets.ZeroTierNode
+import edu.carole.rine.data.sqlite.DBHelper
 import edu.carole.rine.data.zero_tier.thread.TcpConnectionThread
 import edu.carole.rine.data.zero_tier.thread.UdpConnectionThread
 import java.net.InetAddress
@@ -12,21 +13,24 @@ class ServerController {
 
     private val net: ZeroTierNetwork
     private val servers: HashMap<Server, ArrayList<Thread>>
+    private val db: DBHelper
 
-
-    constructor(net: ZeroTierNetwork) {
+    constructor(db: DBHelper, net: ZeroTierNetwork) {
         this.net = net
         servers = HashMap()
+        this.db = db
     }
 
     fun addServer(server: Server) {
         servers.put(server, ArrayList())
+        db.addServer(server, net.networkId)
     }
 
     fun removeServer(id: Long): Boolean {
         val server = getServer(id)
         if (server == null) return false
         servers.remove(server)
+        db.removeServer(id)
         return true
     }
 

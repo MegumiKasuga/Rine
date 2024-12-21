@@ -37,8 +37,9 @@ class NetworkManager {
         node.start()
         servers = HashMap<ZeroTierNetwork, ServerController>()
         val networks = getNetworks()
+        val serverMapping = db.getAllServers()
         networks.forEach { net ->
-            servers.put(net, ServerController(net))
+            servers.put(net, ServerController(db, net))
             val thread = Thread {
                 var counter = 0
                 val times = delay / 100
@@ -53,6 +54,9 @@ class NetworkManager {
                 node.join(net.networkId)
             }
             thread.start()
+        }
+        serverMapping.forEach {
+            key, value -> getNetworkAndServerController(value)?.value?.addServer(key)
         }
     }
 
@@ -75,7 +79,7 @@ class NetworkManager {
     fun addNetwork(network: ZeroTierNetwork) {
         db.addNetwork(network)
         node.join(network.networkId)
-        servers.put(network, ServerController(network))
+        servers.put(network, ServerController(db, network))
     }
 
     fun getNetwork(server: Server): ZeroTierNetwork? {
@@ -207,6 +211,15 @@ class NetworkManager {
         servers.forEach {
                 key, value -> value.getServers().forEach { server ->
                     iter.iterate(key, server)
+            }
+        }
+    }
+
+    fun forEachOnlineServer(iter: ServerIter) {
+        servers.forEach {
+            key, value -> value.getServers().forEach {
+                server -> if (!server.isOnline()) return@forEach
+                iter.iterate(key, server)
             }
         }
     }

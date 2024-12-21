@@ -9,10 +9,8 @@ import android.view.ViewGroup
 import android.widget.*
 import edu.carole.rine.R
 import edu.carole.rine.data.RineData
-import edu.carole.rine.data.packet.LoginOrRegPacket
-import edu.carole.rine.data.sqlite.DBHelper
+import edu.carole.rine.data.packet.LogPacket
 import edu.carole.rine.data.zero_tier.NetworkManager
-import edu.carole.rine.data.zero_tier.ServerController
 import edu.carole.rine.data.zero_tier.ZeroTierNetwork
 import edu.carole.rine.data.zero_tier.Server
 import java.net.InetAddress
@@ -224,7 +222,7 @@ class NetworkAdapter(
                     val port = portStr.toInt()
                     val randomId = (1..1000000).random()
                     val newServer = Server(randomId.toLong(), InetAddress.getByName(address), port.toShort(), nick)
-                    val packet = LoginOrRegPacket(data.user, token = data.token, false)
+                    val packet = LogPacket(data.user, token = data.token, LogPacket.Type.REGISTER)
                     networks.addServer(newServer, net)
                     data.networkManager.sendTcpPacket(net.networkId, newServer.id, newServer.port, packet.getJson(), 60000, { result ->
                         if (result == null || result.reply == null) {
@@ -258,6 +256,7 @@ class NetworkAdapter(
                                 holder.nickTextView.visibility = View.VISIBLE
                                 holder.portTextView.visibility = View.VISIBLE
                             }
+                            newServer.setOnline(true)
                         }
                     })
                     dialog.dismiss()

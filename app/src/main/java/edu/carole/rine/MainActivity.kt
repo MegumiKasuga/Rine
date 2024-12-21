@@ -25,6 +25,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.doOnAttach
 import edu.carole.rine.data.RineData
 import edu.carole.rine.data.model.Chat
+import edu.carole.rine.data.packet.LogPacket
 import edu.carole.rine.data.sqlite.DBHelper
 import edu.carole.rine.data.zero_tier.NetworkManager
 import edu.carole.rine.databinding.ActivityMainBinding
@@ -38,6 +39,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var networkManager: NetworkManager
     private lateinit var db: DBHelper
+    private lateinit var data: RineData
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,8 +47,9 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        networkManager = (application as RineData).networkManager
-        db = (application as RineData).db
+        data = (application as RineData)
+        networkManager = data.networkManager
+        db = data.db
 
         setSupportActionBar(binding.appBarMain.toolbar)
 
@@ -89,6 +92,10 @@ class MainActivity : AppCompatActivity() {
             .setTitle(R.string.quit_dialog_title)
             .setMessage(R.string.quit_dialog_message)
             .setPositiveButton(R.string.quit_dialog_confirm) { _, _ ->
+                val packet = LogPacket(data.user, data.token, LogPacket.Type.QUIT)
+                networkManager.forEachOnlineServer {
+                    net, server -> networkManager.sendTcpPacket(net.networkId, server.id, packet.getJson(), 60000)
+                }
                 finish()
             }
             .setNegativeButton(R.string.quit_dialog_cancel, null)
