@@ -3,6 +3,7 @@ package edu.carole.rine.data
 import android.app.Application
 import android.content.Context
 import edu.carole.rine.data.model.Chat
+import edu.carole.rine.data.model.LoggedInUser
 import edu.carole.rine.data.model.Msg
 import edu.carole.rine.data.sqlite.DBHelper
 import edu.carole.rine.data.zero_tier.NetworkManager
@@ -14,6 +15,7 @@ class RineData: Application() {
     lateinit var db: DBHelper
     lateinit var chatCache: HashMap<Chat, List<Msg>>
     var token: Int = 0
+    lateinit var user: LoggedInUser
 
     override fun onCreate() {
         super.onCreate()

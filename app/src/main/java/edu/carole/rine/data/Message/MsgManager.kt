@@ -22,4 +22,8 @@ class MsgManager(private val dbHelper: DBHelper) {
         )
         return dbHelper.addChatMessage(messageObj)
     }
+
+    // 删除消息
+
+
 }

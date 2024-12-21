@@ -7,20 +7,25 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import edu.carole.rine.R
+import edu.carole.rine.data.RineData
+import edu.carole.rine.data.packet.LoginOrRegPacket
 import edu.carole.rine.data.sqlite.DBHelper
 import edu.carole.rine.data.zero_tier.NetworkManager
 import edu.carole.rine.data.zero_tier.ServerController
 import edu.carole.rine.data.zero_tier.ZeroTierNetwork
+import edu.carole.rine.data.zero_tier.Server
+import java.net.InetAddress
 
 class NetworkAdapter(
     private val context: Context,
-    private var networks: NetworkManager
+    private var networks: NetworkManager,
+    val data: RineData
 ) : BaseAdapter() {
 
     private var currentVisibleDeleteButton: Button? = null
     private var currentVisibleDisconnectTextView: TextView? = null
     private var currentVisibleEditButton: Button? = null
-    private var currentVisibleTestButton: Button? = null
+    private var currentVisibleConnectButton: Button? = null
 
     override fun getCount(): Int {
         return networks.getNetworks().size
@@ -47,7 +52,7 @@ class NetworkAdapter(
             holder.connectTextView = view.findViewById(R.id.connect) // 添加 connectTextView
             holder.deleteButton = view.findViewById(R.id.delete_button)
             holder.editButton = view.findViewById(R.id.edit_button)
-            holder.testButton = view.findViewById(R.id.test_button)
+            holder.connectButton = view.findViewById(R.id.connect_button)
             view.tag = holder
         } else {
             view = convertView
@@ -67,7 +72,7 @@ class NetworkAdapter(
             with(this) {
                 deleteButton.visibility = if (showButtons) View.VISIBLE else View.GONE
                 editButton.visibility = if (showButtons) View.VISIBLE else View.GONE
-                testButton.visibility = if (showButtons) View.VISIBLE else View.GONE
+                connectButton.visibility = if (showButtons) View.VISIBLE else View.GONE
                 
                 // 控制昵称和端口的显示
                 nickTextView.visibility = if (showButtons) View.GONE else View.VISIBLE
@@ -87,7 +92,7 @@ class NetworkAdapter(
             }
             currentVisibleDeleteButton = if (showButtons) deleteButton else null
             currentVisibleEditButton = if (showButtons) editButton else null
-            currentVisibleTestButton = if (showButtons) testButton else null
+            currentVisibleConnectButton = if (showButtons) connectButton else null
             currentVisibleDisconnectTextView = if (showButtons) null else disconnectTextView
         }
 
@@ -115,16 +120,10 @@ class NetworkAdapter(
             showEditDialog(network)
         }
 
-        holder.testButton.setOnClickListener {
-            val network = networks.getNetworks()[position]
-            // 测试后立即更新状态显示
-            val isConnected = testNetwork(network)
-            // 隐藏所有按钮
-            holder.setButtonsVisibility(false)
-            // 根据连接状态显示对应文本
-            holder.disconnectTextView.visibility = if (isConnected) View.GONE else View.VISIBLE
-            holder.connectTextView.visibility = if (isConnected) View.VISIBLE else View.GONE
+        holder.connectButton.setOnClickListener {
+            showConnectDialog(networks.getNetworks()[position])
         }
+
         return view
     }
 
@@ -183,6 +182,62 @@ class NetworkAdapter(
         dialog.show()
     }
 
+    private fun showConnectDialog(net: ZeroTierNetwork) {
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_server_input, null)
+
+        val addressInput = dialogView.findViewById<EditText>(R.id.address_input)
+        val portInput = dialogView.findViewById<EditText>(R.id.port_input)
+        val nickInput = dialogView.findViewById<EditText>(R.id.nick_input)
+        val positiveButton = dialogView.findViewById<Button>(R.id.positive_button)
+        val negativeButton = dialogView.findViewById<Button>(R.id.negative_button)
+
+        val dialog = AlertDialog.Builder(context)
+            .setView(dialogView)
+            .create()
+
+        positiveButton.setOnClickListener {
+//            val address = addressInput.text.toString()
+//            val portStr = portInput.text.toString()
+//            val nick = nickInput.text.toString()
+                val address = "192.168.191.38"
+                val portStr = "9998"
+                val nick = "Carole"
+
+            if (address.isNotEmpty() && portStr.isNotEmpty()) {
+                try {
+                    val port = portStr.toInt()
+                    val randomId = (1..1000000).random()
+                    val newServer = Server(randomId.toLong(), InetAddress.getByName(address), port.toShort(), nick)
+                    val packet = LoginOrRegPacket(data.user, token = data.token, false)
+                    networks.addServer(newServer, net)
+                    data.networkManager.sendTcpPacket(net.networkId, newServer.id, newServer.port, packet.getJson(), 60000, { result ->
+                        if (result == null || result.reply == null) {
+                            networks.removeServer(newServer, net)
+                            return@sendTcpPacket
+                        }
+                        val replyJson = result.reply
+                        val contentJson = replyJson.asJsonObject.get("content").asJsonObject
+                        if (contentJson.get("msg").asString != "success") {
+                            networks.removeServer(newServer, net)
+                        }
+                    })
+                    dialog.dismiss()
+                } catch (e: NumberFormatException) {
+                    Toast.makeText(context, "端口号不正确", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                Toast.makeText(context, "请填写完整的信息", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        negativeButton.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.show()
+    }
+
     private fun testNetwork(network: ZeroTierNetwork): Boolean {
         return networks.isJoined(network)
     }
@@ -199,6 +254,6 @@ class NetworkAdapter(
         lateinit var connectTextView: TextView  // 添加 connectTextView
         lateinit var deleteButton: Button
         lateinit var editButton: Button
-        lateinit var testButton: Button
+        lateinit var connectButton: Button
     }
 }

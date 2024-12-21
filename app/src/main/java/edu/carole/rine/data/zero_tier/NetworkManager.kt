@@ -104,6 +104,16 @@ class NetworkManager {
         }
     }
 
+    fun removeServer(server: Server, network: ZeroTierNetwork): Boolean {
+        if (servers.contains(network)) {
+            val controller = servers.get(network)
+            if (controller == null) return false
+            if (!controller.contains(server)) return false
+            return controller.removeServer(server.id)
+        }
+        return false
+    }
+
     fun deleteNetworkFiles(networkId: Long) {
         val networkFile = File(storagePath, "networks.d/${networkId.toULong().toString(16)}.conf")
         if (networkFile.exists()) {

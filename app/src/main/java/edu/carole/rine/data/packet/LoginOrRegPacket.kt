@@ -16,6 +16,12 @@ class LoginOrRegPacket {
         this.isLogin = isLogin
     }
 
+    constructor(user: LoggedInUser, token: Int, isLogin: Boolean) {
+        this.uid = user.userId
+        this.token = token
+        this.isLogin = isLogin
+    }
+
     fun getJson(): JsonObject {
         val obj = JsonObject().apply {
             addProperty("service_code", if (isLogin) 1 else 2)

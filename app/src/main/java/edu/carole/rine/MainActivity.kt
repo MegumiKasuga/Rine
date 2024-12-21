@@ -114,6 +114,10 @@ class MainActivity : AppCompatActivity() {
         return db
     }
 
+    fun getData(): RineData {
+        return application as RineData
+    }
+
     @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
         if (binding.drawerLayout.isDrawerOpen(binding.navigation)) {

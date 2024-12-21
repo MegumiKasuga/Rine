@@ -42,13 +42,13 @@ class WelcomeActivity : AppCompatActivity() {
         }
         thread.start()
 
-        val data = application as RineData
-        val server = Server(0, InetAddress.getByName("192.168.191.38"), 9998, "")
-        val nm = data.networkManager
-        if (nm.getNetworks().isNotEmpty()) {
-            val net = nm.getNetworks()[0]
-            nm.addServer(server, net)
-        }
+//        val data = application as RineData
+//        val server = Server(0, InetAddress.getByName("192.168.191.38"), 9998, "")
+//        val nm = data.networkManager
+//        if (nm.getNetworks().isNotEmpty()) {
+//            val net = nm.getNetworks()[0]
+//            nm.addServer(server, net)
+//        }
 //        val user = LoggedInUser(UUID.fromString("3ab02940-d08d-4c47-8036-e1cc94e8ea31"), "Carole")
 //        val token = user.getToken("1145141919")
 //        // TOKEN: -387105882

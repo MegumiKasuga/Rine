@@ -53,6 +53,7 @@ class LoginViewModel : ViewModel {
                     Result.Error(Exception("Unexpected Error in login"))
                 } else {
                     val user = LoggedInUser(id, username)
+                    data.user = user
                     getThread(user, password, true)
                     Result.Success(user)
                 }
@@ -82,6 +83,7 @@ class LoginViewModel : ViewModel {
     fun autoLogin() {
         val autoLoginUser = db.getAutoLogin()
         if (autoLoginUser == null) return
+        data.user = autoLoginUser
         val pass = db.getPass(autoLoginUser)
         getThread(autoLoginUser, pass, true)
         val result = Result.Success(autoLoginUser)
@@ -105,6 +107,7 @@ class LoginViewModel : ViewModel {
             val id = UUID.randomUUID()
             db.register(username, password, id, autoLogin)
             val user = LoggedInUser(id, username)
+            data.user = user
             getThread(user, password, false)
             Result.Success(user)
         }

@@ -24,13 +24,15 @@ class GalleryFragment : Fragment(R.layout.fragment_network) {
     private lateinit var listView: ListView
     private lateinit var addButton: Button
     private lateinit var adapter: NetworkAdapter
+    private lateinit var data: RineData
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        networkManager = (activity as MainActivity).getNetworkManager()
+        data = (activity as MainActivity).getData()
+        networkManager = data.networkManager
         listView = view.findViewById(R.id.network_list)
         addButton = view.findViewById(R.id.add_network_button)
-        adapter = NetworkAdapter(requireContext(), networkManager)
+        adapter = NetworkAdapter(requireContext(), networkManager, data)
         listView.adapter = adapter
 
         addButton.setOnClickListener {
