@@ -2,12 +2,10 @@ package edu.carole.rine.ui.chat
 
 import android.os.Bundle
 import android.view.animation.AnimationUtils
-import android.widget.Button
 import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
 import edu.carole.rine.R
 import edu.carole.rine.data.RineData
-import edu.carole.rine.data.model.ChatMessage
 import edu.carole.rine.data.model.LoggedInUser
 import edu.carole.rine.data.model.Msg
 import edu.carole.rine.data.sqlite.DBHelper
@@ -53,18 +51,24 @@ class ChatActivity : AppCompatActivity() {
         for (chatMessage in chatMessages) { // 根据 senderId 获取用户信息
             val sender = db.getLoggedInUser(chatMessage.senderId) ?: LoggedInUser(chatMessage.senderId, "未知用户")
             msgList.add(Msg(sender, chatMessage.message)) }
-        val adapter = MsgAdapter(this, R.layout.msg_item, msgList)
+        val rineData = application as RineData
+        val currentUser =  rineData.user
+        val adapter = MsgAdapter(
+            this,
+            R.layout.msg_item_left,
+            R.layout.msg_item_right,
+            currentUser.userId,
+            msgList
+        )
         listView.divider = null
         listView.adapter = adapter
 
-//        val adapter = MsgAdapter(this, R.layout.msg_item, msgList)
-//        listView.divider = null listView.adapter = adapter
         sendMsgBtn.setOnClickListener {
             val msgContent = msgEditor.text.toString()
-            msgList.add(Msg(user1, msgContent))
+            msgList.add(Msg(currentUser, msgContent))
             adapter.notifyDataSetChanged()
             msgEditor.text.clear()
-            msgManager.sendMessage(dummyChat.id, user1.userId, msgContent)
+            msgManager.addMessage(dummyChat.id, currentUser.userId, msgContent)
             val listView: ListView = findViewById(R.id.chat_list)
             val animation = AnimationUtils.loadLayoutAnimation(this, R.anim.layout_animation)
             listView.layoutAnimation = animation
@@ -82,7 +86,7 @@ class ChatActivity : AppCompatActivity() {
 //                msgList.add(newMsg)
 //                adapter.notifyDataSetChanged()
 //                msgEditor.text.clear()
-//                msgManager.sendMessage(dummyChat.id, user1.userId, msgContent) }
+//                msgManager.addMessage(dummyChat.id, user1.userId, msgContent) }
 //            returnBtn.setOnClickListener { finish() }
 //        }
 

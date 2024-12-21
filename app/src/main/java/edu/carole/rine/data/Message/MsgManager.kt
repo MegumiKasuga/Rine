@@ -1,6 +1,5 @@
 package edu.carole.rine.data.Message
 
-import edu.carole.rine.data.model.Msg
 import edu.carole.rine.data.sqlite.DBHelper
 import edu.carole.rine.data.sqlite.DBHelper.ChatMessage
 import java.util.UUID
@@ -13,7 +12,7 @@ class MsgManager(private val dbHelper: DBHelper) {
     }
 
     // 发送并保存消息
-    fun sendMessage(chatId: Long, senderId: UUID, content: String): Boolean {
+    fun addMessage(chatId: Long, senderId: UUID, content: String): Boolean {
         val messageObj = ChatMessage(
             chatId = chatId,
             senderId = senderId,
@@ -22,8 +21,6 @@ class MsgManager(private val dbHelper: DBHelper) {
         )
         return dbHelper.addChatMessage(messageObj)
     }
-
-    // 删除消息
 
 
 }

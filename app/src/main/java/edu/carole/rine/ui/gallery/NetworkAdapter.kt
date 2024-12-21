@@ -1,5 +1,6 @@
 package edu.carole.rine.ui.gallery
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.view.LayoutInflater
@@ -19,7 +20,8 @@ import java.net.InetAddress
 class NetworkAdapter(
     private val context: Context,
     private var networks: NetworkManager,
-    val data: RineData
+    val data: RineData,
+    val activity: Activity?
 ) : BaseAdapter() {
 
     private var currentVisibleDeleteButton: Button? = null
@@ -213,12 +215,23 @@ class NetworkAdapter(
                     data.networkManager.sendTcpPacket(net.networkId, newServer.id, newServer.port, packet.getJson(), 60000, { result ->
                         if (result == null || result.reply == null) {
                             networks.removeServer(newServer, net)
+                            activity?.runOnUiThread {
+                                Toast.makeText(context, "服务器不存在", Toast.LENGTH_SHORT).show()
+                            }
                             return@sendTcpPacket
                         }
+
                         val replyJson = result.reply
                         val contentJson = replyJson.asJsonObject.get("content").asJsonObject
                         if (contentJson.get("msg").asString != "success") {
+                            activity?.runOnUiThread {
+                                Toast.makeText(context, "注册失败 " + contentJson.get("cause").asString, Toast.LENGTH_SHORT).show()
+                            }
                             networks.removeServer(newServer, net)
+                        } else {
+                            activity?.runOnUiThread {
+                                Toast.makeText(context, "注册成功", Toast.LENGTH_SHORT).show()
+                            }
                         }
                     })
                     dialog.dismiss()
