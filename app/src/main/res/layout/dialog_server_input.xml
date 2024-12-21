@@ -27,7 +27,7 @@
             android:id="@+id/address_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="网络ID (16进制)"
+            android:hint="服务器地址"
             android:inputType="text" />
 
         <EditText

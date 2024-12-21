@@ -15,5 +15,6 @@
     <color name="nijika">#FFB400</color>
     <color name="disconnect">#F17666</color>
     <color name="connect">#248067</color>
+    <color name="connect_server">#2983BB</color>
     <color name="grey">#828282</color>
 </resources>
