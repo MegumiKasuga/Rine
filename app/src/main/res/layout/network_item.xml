@@ -65,19 +65,6 @@
         android:layout_marginRight="30dp"
         android:visibility="gone"
         />
-    <TextView
-        android:id="@+id/online"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_alignParentEnd="true"
-        android:text="连接到服务器"
-        android:textColor="@color/connect_server"
-        android:textSize="22dp"
-        android:textStyle="bold"
-        android:layout_marginRight="30dp"
-        android:visibility="gone"
-        />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -116,5 +103,19 @@
             android:visibility="gone"/>
 
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/server_online"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:text="连接到服务器"
+        android:textColor="@color/connect_server"
+        android:textSize="22dp"
+        android:textStyle="bold"
+        android:layout_marginRight="30dp"
+        android:visibility="gone"
+        />
 
 </RelativeLayout>

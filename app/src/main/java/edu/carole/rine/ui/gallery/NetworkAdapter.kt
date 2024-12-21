@@ -28,6 +28,7 @@ class NetworkAdapter(
     private var currentVisibleDisconnectTextView: TextView? = null
     private var currentVisibleEditButton: Button? = null
     private var currentVisibleConnectButton: Button? = null
+    private var connectedNetworks = mutableSetOf<Long>()  // 添加已连接网络的记录
 
     override fun getCount(): Int {
         return networks.getNetworks().size
@@ -52,6 +53,7 @@ class NetworkAdapter(
             holder.portTextView = view.findViewById(R.id.port)
             holder.disconnectTextView = view.findViewById(R.id.disconnect)
             holder.connectTextView = view.findViewById(R.id.connect) // 添加 connectTextView
+            holder.serverOnlineTextView = view.findViewById(R.id.server_online) // 添加服务器在线状态
             holder.deleteButton = view.findViewById(R.id.delete_button)
             holder.editButton = view.findViewById(R.id.edit_button)
             holder.connectButton = view.findViewById(R.id.connect_button)
@@ -81,15 +83,27 @@ class NetworkAdapter(
                 portTextView.visibility = if (showButtons) View.GONE else View.VISIBLE
 
                 // 根据连接状态决定显示哪个文本
-                val isConnected = networks.isJoined(networks.getNetworks()[position])
+                val network = networks.getNetworks()[position]
+                val isConnected = networks.isJoined(network)
+                val hasConnectedServer = connectedNetworks.contains(network.networkId)
+
                 if (!showButtons) {
-                    // 只有在不显示按钮时才显示连接状态
-                    disconnectTextView.visibility = if (isConnected) View.GONE else View.VISIBLE
-                    connectTextView.visibility = if (isConnected) View.VISIBLE else View.GONE
+                    if (hasConnectedServer) {
+                        // 如果已经连接到服务器
+                        disconnectTextView.visibility = View.GONE
+                        connectTextView.visibility = View.GONE
+                        serverOnlineTextView.visibility = View.VISIBLE
+                    } else {
+                        // 如果没有连接到服务器，显示普通的连接状态
+                        disconnectTextView.visibility = if (isConnected) View.GONE else View.VISIBLE
+                        connectTextView.visibility = if (isConnected) View.VISIBLE else View.GONE
+                        serverOnlineTextView.visibility = View.GONE
+                    }
                 } else {
                     // 显示按钮时隐藏连接状态
                     disconnectTextView.visibility = View.GONE
                     connectTextView.visibility = View.GONE
+                    serverOnlineTextView.visibility = View.GONE
                 }
             }
             currentVisibleDeleteButton = if (showButtons) deleteButton else null
@@ -123,7 +137,7 @@ class NetworkAdapter(
         }
 
         holder.connectButton.setOnClickListener {
-            showConnectDialog(networks.getNetworks()[position])
+            showConnectDialog(networks.getNetworks()[position], holder)
         }
 
         return view
@@ -184,7 +198,7 @@ class NetworkAdapter(
         dialog.show()
     }
 
-    private fun showConnectDialog(net: ZeroTierNetwork) {
+    private fun showConnectDialog(net: ZeroTierNetwork, holder: ViewHolder) {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_server_input, null)
 
         val addressInput = dialogView.findViewById<EditText>(R.id.address_input)
@@ -231,6 +245,18 @@ class NetworkAdapter(
                         } else {
                             activity?.runOnUiThread {
                                 Toast.makeText(context, "注册成功", Toast.LENGTH_SHORT).show()
+                                connectedNetworks.add(net.networkId)  // 记录成功连接的网络
+                                // 隐藏所有按钮
+                                holder.deleteButton.visibility = View.GONE
+                                holder.editButton.visibility = View.GONE
+                                holder.connectButton.visibility = View.GONE
+                                // 显示服务器连接状态
+                                holder.disconnectTextView.visibility = View.GONE
+                                holder.connectTextView.visibility = View.GONE
+                                holder.serverOnlineTextView.visibility = View.VISIBLE
+                                // 显示昵称和端口
+                                holder.nickTextView.visibility = View.VISIBLE
+                                holder.portTextView.visibility = View.VISIBLE
                             }
                         }
                     })
@@ -265,6 +291,7 @@ class NetworkAdapter(
         lateinit var portTextView: TextView
         lateinit var disconnectTextView: TextView
         lateinit var connectTextView: TextView  // 添加 connectTextView
+        lateinit var serverOnlineTextView: TextView  // 添加服务器在线状态
         lateinit var deleteButton: Button
         lateinit var editButton: Button
         lateinit var connectButton: Button
