@@ -23,7 +23,7 @@ import edu.carole.rine.data.zero_tier.NetworkManager
 import edu.carole.rine.data.zero_tier.Server
 import edu.carole.rine.databinding.FragmentSearchchatBinding
 
-class SearchFragment : Fragment() {
+class SearchFragment() : Fragment() {
 
     private var _binding: FragmentSearchchatBinding? = null
     private lateinit var networkManager: NetworkManager
@@ -40,8 +40,10 @@ class SearchFragment : Fragment() {
         savedInstanceState: Bundle?
 
     ): View {
+        if (activity == null) return binding.root
+        val data = (activity?.application as RineData)
         viewModel =
-            ViewModelProvider(this).get(SearchViewModel::class.java)
+            ViewModelProvider(this, SearchViewModelFactory(data = data)).get(SearchViewModel::class.java)
 
         _binding = FragmentSearchchatBinding.inflate(inflater, container, false)
         val root: View = binding.root
