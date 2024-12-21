@@ -32,7 +32,7 @@ class GalleryFragment : Fragment(R.layout.fragment_network) {
         networkManager = data.networkManager
         listView = view.findViewById(R.id.network_list)
         addButton = view.findViewById(R.id.add_network_button)
-        adapter = NetworkAdapter(requireContext(), networkManager, data)
+        adapter = NetworkAdapter(requireContext(), networkManager, data, activity)
         listView.adapter = adapter
 
         addButton.setOnClickListener {

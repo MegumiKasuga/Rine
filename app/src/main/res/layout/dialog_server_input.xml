@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="15dp"
+    android:background="@drawable/rounded_dialog_background">
+
+    <TextView
+        android:id="@+id/dialog_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="连接到服务器"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:padding="16dp"
+        android:gravity="left"
+        android:visibility="visible"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <EditText
+            android:id="@+id/address_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="网络ID (16进制)"
+            android:inputType="text" />
+
+        <EditText
+            android:id="@+id/port_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="端口号"
+            android:inputType="number" />
+
+        <EditText
+            android:id="@+id/nick_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="昵称（可选）"
+            android:inputType="text" />
+    </LinearLayout>
+
+    <LinearLayout
+        style="?android:attr/buttonBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:padding="8dp">
+
+        <Button
+            android:id="@+id/negative_button"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="取消" />
+
+        <Button
+            android:id="@+id/positive_button"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="确定" />
+    </LinearLayout>
+
+</LinearLayout>
